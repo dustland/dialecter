@@ -65,8 +65,11 @@ public final class AudioRecorderManager {
         
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            // Configure session for playAndRecord with bluetooth support
-            try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
+            // Prefer far-field capture over call-style processing. Measurement mode keeps the
+            // raw microphone signal closer to what the speech recognizer and saved file need.
+            try audioSession.setCategory(.record, mode: .measurement, options: [.allowBluetoothHFP])
+            try audioSession.setPreferredSampleRate(48_000)
+            try audioSession.setPreferredIOBufferDuration(0.02)
             try audioSession.setActive(true)
         } catch {
             logger.error("Failed to configure AVAudioSession: \(error.localizedDescription)")
