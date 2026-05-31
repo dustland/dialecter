@@ -197,7 +197,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "Apple Distribution";
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_KEY_CFBundleDisplayName = "Dialect Listener";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access to record surrounding dialect conversations for listening exercises.";
@@ -282,7 +281,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "Apple Distribution";
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_KEY_CFBundleDisplayName = "Dialect Listener";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access to record surrounding dialect conversations for listening exercises.";
