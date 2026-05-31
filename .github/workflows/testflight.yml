@@ -8,7 +8,7 @@ env:
   SCHEME: DialectListener
   CONFIGURATION: Release
   APP_BUNDLE_ID: ${{ vars.APP_BUNDLE_ID || 'com.dustland.DialectListener' }}
-  MARKETING_VERSION: ${{ vars.MARKETING_VERSION || '1.0.1' }}
+  MARKETING_VERSION: ${{ vars.MARKETING_VERSION || '1.0.2' }}
 
 jobs:
   build-and-upload:

@@ -88,6 +88,36 @@ public enum TranslationTarget: String, CaseIterable, Identifiable {
     }
 }
 
+public enum ChatTargetDialect: String, CaseIterable, Identifiable {
+    case cantonese
+
+    public var id: String { rawValue }
+
+    public var title: String {
+        switch self {
+        case .cantonese: AppText.t("Cantonese", "粤语")
+        }
+    }
+
+    public var promptName: String {
+        switch self {
+        case .cantonese: "Hong Kong Cantonese"
+        }
+    }
+
+    public var pronunciationSystem: String {
+        switch self {
+        case .cantonese: "Jyutping with tone numbers"
+        }
+    }
+
+    public var speechLocaleIdentifier: String {
+        switch self {
+        case .cantonese: "zh-HK"
+        }
+    }
+}
+
 @Observable
 public final class AppSettings {
     private enum Key {
@@ -95,6 +125,7 @@ public final class AppSettings {
         static let micSensitivity = "settings.micSensitivity"
         static let sourceLanguage = "settings.sourceLanguage"
         static let translationTarget = "settings.translationTarget"
+        static let chatTargetDialect = "settings.chatTargetDialect"
         static let liveTranscriptEnabled = "settings.liveTranscriptEnabled"
         static let liveTranslationEnabled = "settings.liveTranslationEnabled"
         static let keepScreenAwake = "settings.keepScreenAwake"
@@ -111,6 +142,9 @@ public final class AppSettings {
     }
     public var translationTarget: TranslationTarget {
         didSet { defaults.set(translationTarget.rawValue, forKey: Key.translationTarget) }
+    }
+    public var chatTargetDialect: ChatTargetDialect {
+        didSet { defaults.set(chatTargetDialect.rawValue, forKey: Key.chatTargetDialect) }
     }
     public var liveTranscriptEnabled: Bool {
         didSet { defaults.set(liveTranscriptEnabled, forKey: Key.liveTranscriptEnabled) }
@@ -130,6 +164,7 @@ public final class AppSettings {
         self.micSensitivity = MicSensitivity(rawValue: defaults.string(forKey: Key.micSensitivity) ?? "") ?? .high
         self.sourceLanguage = SourceLanguage(rawValue: defaults.string(forKey: Key.sourceLanguage) ?? "") ?? .cantonese
         self.translationTarget = TranslationTarget(rawValue: defaults.string(forKey: Key.translationTarget) ?? "") ?? .simplifiedChinese
+        self.chatTargetDialect = ChatTargetDialect(rawValue: defaults.string(forKey: Key.chatTargetDialect) ?? "") ?? .cantonese
         self.liveTranscriptEnabled = defaults.object(forKey: Key.liveTranscriptEnabled) as? Bool ?? true
         self.liveTranslationEnabled = defaults.object(forKey: Key.liveTranslationEnabled) as? Bool ?? true
         self.keepScreenAwake = defaults.object(forKey: Key.keepScreenAwake) as? Bool ?? true

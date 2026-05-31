@@ -10,7 +10,9 @@ public struct HomeView: View {
     @State private var selectedSessionForDetail: Session? = nil
     @State private var isShowingSettings = false
     
-    public init() {}
+    public init(settings: AppSettings = AppSettings()) {
+        _sessionManager = State(initialValue: SessionManager(appSettings: settings))
+    }
     
     public var body: some View {
         NavigationStack {

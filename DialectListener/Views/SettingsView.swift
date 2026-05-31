@@ -35,6 +35,12 @@ public struct SettingsView: View {
                             Text(target.title).tag(target)
                         }
                     }
+
+                    Picker(AppText.t("Chat Target", "畅聊目标"), selection: $settings.chatTargetDialect) {
+                        ForEach(ChatTargetDialect.allCases) { dialect in
+                            Text(dialect.title).tag(dialect)
+                        }
+                    }
                 }
 
                 Section(AppText.t("Live Recognition", "实时识别")) {

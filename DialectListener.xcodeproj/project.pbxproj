@@ -10,13 +10,17 @@
 		0BDF15425500286E002C73A3 /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44CB56486ADF10B1195F55DC /* SessionManager.swift */; };
 		0296A7A398564419A74D58DA /* AppText.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60C4B0D60394372A474E9BC /* AppText.swift */; };
 		163A4C026F5E4F669FE12D83 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 718C0D1758AB43F0B6056D1D /* AppSettings.swift */; };
+		1D71A9278CF94B42A7E7F064 /* DialectChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 376FD5B73C7146A9AFD23D92 /* DialectChatService.swift */; };
 			1FB448016B7F48F42C6D3C37 /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA5FD34CB941A6F3A7ED5E9 /* SessionDetailView.swift */; };
 			2E8594D5F0EC4C04A4C49D1A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F4F5E35D6124C6A9D0B8CC0 /* Assets.xcassets */; };
 			3428626F803B086146527DF5 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFEC06B3B465467032A6E09C /* Models.swift */; };
 		363104C33B79C39FEB869D21 /* WatchConnectivityProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FC1AAEF58A470335B205D5 /* WatchConnectivityProtocol.swift */; };
+		44101B9EA9F94E42AB2536B3 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ED8E67C53244A09C5E9D94 /* ChatView.swift */; };
 		58543F30282A0939DE905550 /* RecordingHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEA535C9089C837C565D893 /* RecordingHUDView.swift */; };
+		6A3928209F3444E3B7B18A61 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21EF84D58E04C77802B8A0C /* MainTabView.swift */; };
 		80AD4F5DD28E405E6B8FE538 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1C6FDBDD568C8FD73E6CC1 /* HomeView.swift */; };
 		929FB10E16C4848796BA8DA6 /* AudioRecorderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A6173AA842150032326131 /* AudioRecorderManager.swift */; };
+		98748F5A51DA4B1E86163D4B /* MandarinDictationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6CE70F90584732A18C422C /* MandarinDictationManager.swift */; };
 		A0E925D0B8D04E268A9F63C3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0766D5C86D746EF93B12F72 /* SettingsView.swift */; };
 		B8788DFFB5D612C7077B5D19 /* WatchConnectivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1D34961B6D9546EF556B14 /* WatchConnectivityManager.swift */; };
 		BA269C817DAC8A6C35D694FE /* DialectListenerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B8A5191B629E3E4DDD752C5 /* DialectListenerApp.swift */; };
@@ -27,6 +31,8 @@
 /* Begin PBXFileReference section */
 		1625B7645FAFDEFAADD9516D /* DialectListener.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DialectListener.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B8A5191B629E3E4DDD752C5 /* DialectListenerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialectListenerApp.swift; sourceTree = "<group>"; };
+		0C6CE70F90584732A18C422C /* MandarinDictationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MandarinDictationManager.swift; sourceTree = "<group>"; };
+		376FD5B73C7146A9AFD23D92 /* DialectChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialectChatService.swift; sourceTree = "<group>"; };
 		44CB56486ADF10B1195F55DC /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
 			47A6173AA842150032326131 /* AudioRecorderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderManager.swift; sourceTree = "<group>"; };
 			4A1C6FDBDD568C8FD73E6CC1 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -40,8 +46,10 @@
 			9F4F5E35D6124C6A9D0B8CC0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 			CBA5FD34CB941A6F3A7ED5E9 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 			CFEC06B3B465467032A6E09C /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+			D21EF84D58E04C77802B8A0C /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 			F4C9C6302F704431B03125AF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 			E0766D5C86D746EF93B12F72 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+			F5ED8E67C53244A09C5E9D94 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -107,6 +115,8 @@
 			children = (
 				9C7801A7F799FD58625E423F /* AppleASRService.swift */,
 				47A6173AA842150032326131 /* AudioRecorderManager.swift */,
+				376FD5B73C7146A9AFD23D92 /* DialectChatService.swift */,
+				0C6CE70F90584732A18C422C /* MandarinDictationManager.swift */,
 				53804D29B32DB018847CBC1C /* TranslationService.swift */,
 			);
 			path = Services;
@@ -124,7 +134,9 @@
 		BD89043E67CF46F7163928BA /* Views */ = {
 			isa = PBXGroup;
 			children = (
+					F5ED8E67C53244A09C5E9D94 /* ChatView.swift */,
 					4A1C6FDBDD568C8FD73E6CC1 /* HomeView.swift */,
+					D21EF84D58E04C77802B8A0C /* MainTabView.swift */,
 					9CEA535C9089C837C565D893 /* RecordingHUDView.swift */,
 					CBA5FD34CB941A6F3A7ED5E9 /* SessionDetailView.swift */,
 					E0766D5C86D746EF93B12F72 /* SettingsView.swift */,
@@ -205,9 +217,13 @@
 					0296A7A398564419A74D58DA /* AppText.swift in Sources */,
 					163A4C026F5E4F669FE12D83 /* AppSettings.swift in Sources */,
 					BDC690D6B01857B4B99F55DA /* AppleASRService.swift in Sources */,
+					44101B9EA9F94E42AB2536B3 /* ChatView.swift in Sources */,
+					1D71A9278CF94B42A7E7F064 /* DialectChatService.swift in Sources */,
 				929FB10E16C4848796BA8DA6 /* AudioRecorderManager.swift in Sources */,
 				BA269C817DAC8A6C35D694FE /* DialectListenerApp.swift in Sources */,
 					80AD4F5DD28E405E6B8FE538 /* HomeView.swift in Sources */,
+					6A3928209F3444E3B7B18A61 /* MainTabView.swift in Sources */,
+					98748F5A51DA4B1E86163D4B /* MandarinDictationManager.swift in Sources */,
 					A0E925D0B8D04E268A9F63C3 /* SettingsView.swift in Sources */,
 					3428626F803B086146527DF5 /* Models.swift in Sources */,
 				58543F30282A0939DE905550 /* RecordingHUDView.swift in Sources */,

@@ -18,7 +18,7 @@ struct DialectListenerApp: App {
     
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            MainTabView()
                 .preferredColorScheme(.dark) // Forced dark mode for premium street readability
         }
         .modelContainer(container)
