@@ -16,5 +16,6 @@ targets:
         INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "We need speech recognition permission to transcribe dialect conversations on-device."
         INFOPLIST_KEY_UIBackgroundModes: 
           - audio
+        GENERATE_INFOPLIST_FILE: YES
         PRODUCT_BUNDLE_IDENTIFIER: com.dustland.DialectListener
         DEVELOPMENT_TEAM: "" # User can input their Apple Developer Team ID here

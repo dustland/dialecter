@@ -198,6 +198,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Dialect Listener";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access to record surrounding dialect conversations for listening exercises.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition permission to transcribe dialect conversations on-device.";
@@ -282,6 +283,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Dialect Listener";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access to record surrounding dialect conversations for listening exercises.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition permission to transcribe dialect conversations on-device.";
