@@ -1,0 +1,26 @@
+# Xcode
+DerivedData/
+build/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcscmblueprint
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Apple signing material
+*.cer
+*.p12
+*.mobileprovision
+*.provisionprofile
+AuthKey_*.p8
+
+# Local environment
+.env
+.env.*
+
+# macOS
+.DS_Store

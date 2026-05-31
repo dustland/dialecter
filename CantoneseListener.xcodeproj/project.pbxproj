@@ -1,0 +1,381 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0BDF15425500286E002C73A3 /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44CB56486ADF10B1195F55DC /* SessionManager.swift */; };
+		1FB448016B7F48F42C6D3C37 /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA5FD34CB941A6F3A7ED5E9 /* SessionDetailView.swift */; };
+		3428626F803B086146527DF5 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFEC06B3B465467032A6E09C /* Models.swift */; };
+		363104C33B79C39FEB869D21 /* WatchConnectivityProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65FC1AAEF58A470335B205D5 /* WatchConnectivityProtocol.swift */; };
+		58543F30282A0939DE905550 /* RecordingHUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CEA535C9089C837C565D893 /* RecordingHUDView.swift */; };
+		80AD4F5DD28E405E6B8FE538 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1C6FDBDD568C8FD73E6CC1 /* HomeView.swift */; };
+		929FB10E16C4848796BA8DA6 /* AudioRecorderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47A6173AA842150032326131 /* AudioRecorderManager.swift */; };
+		B8788DFFB5D612C7077B5D19 /* WatchConnectivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E1D34961B6D9546EF556B14 /* WatchConnectivityManager.swift */; };
+		BA269C817DAC8A6C35D694FE /* CantoneseListenerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B8A5191B629E3E4DDD752C5 /* CantoneseListenerApp.swift */; };
+		BDC690D6B01857B4B99F55DA /* AppleASRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C7801A7F799FD58625E423F /* AppleASRService.swift */; };
+		D0909617ED192270E486FD4A /* TranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53804D29B32DB018847CBC1C /* TranslationService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1625B7645FAFDEFAADD9516D /* CantoneseListener.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CantoneseListener.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B8A5191B629E3E4DDD752C5 /* CantoneseListenerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoneseListenerApp.swift; sourceTree = "<group>"; };
+		44CB56486ADF10B1195F55DC /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
+		47A6173AA842150032326131 /* AudioRecorderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderManager.swift; sourceTree = "<group>"; };
+		4A1C6FDBDD568C8FD73E6CC1 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		53804D29B32DB018847CBC1C /* TranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationService.swift; sourceTree = "<group>"; };
+		65FC1AAEF58A470335B205D5 /* WatchConnectivityProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityProtocol.swift; sourceTree = "<group>"; };
+		8E1D34961B6D9546EF556B14 /* WatchConnectivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityManager.swift; sourceTree = "<group>"; };
+		9C7801A7F799FD58625E423F /* AppleASRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleASRService.swift; sourceTree = "<group>"; };
+		9CEA535C9089C837C565D893 /* RecordingHUDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingHUDView.swift; sourceTree = "<group>"; };
+		CBA5FD34CB941A6F3A7ED5E9 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
+		CFEC06B3B465467032A6E09C /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		006287BE245F6B9A4C7267E9 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				1B8A5191B629E3E4DDD752C5 /* CantoneseListenerApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		02DFF64892D9EDC79A54E69E /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				65FC1AAEF58A470335B205D5 /* WatchConnectivityProtocol.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		2629299C7F12BB69BD94D462 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1625B7645FAFDEFAADD9516D /* CantoneseListener.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5FD8B3DD0C07239DA77BCF28 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				CFEC06B3B465467032A6E09C /* Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6AF9988A82814CA4015C65F0 /* CantoneseListener */ = {
+			isa = PBXGroup;
+			children = (
+				006287BE245F6B9A4C7267E9 /* App */,
+				A1639E115737A2101A86DA7A /* Managers */,
+				5FD8B3DD0C07239DA77BCF28 /* Models */,
+				A2ED09B4A7010CD13EA0732E /* Services */,
+				BD89043E67CF46F7163928BA /* Views */,
+			);
+			path = CantoneseListener;
+			sourceTree = "<group>";
+		};
+		A1639E115737A2101A86DA7A /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				44CB56486ADF10B1195F55DC /* SessionManager.swift */,
+				8E1D34961B6D9546EF556B14 /* WatchConnectivityManager.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		A2ED09B4A7010CD13EA0732E /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				9C7801A7F799FD58625E423F /* AppleASRService.swift */,
+				47A6173AA842150032326131 /* AudioRecorderManager.swift */,
+				53804D29B32DB018847CBC1C /* TranslationService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B58BCFDBD897F775285E3429 = {
+			isa = PBXGroup;
+			children = (
+				6AF9988A82814CA4015C65F0 /* CantoneseListener */,
+				02DFF64892D9EDC79A54E69E /* Shared */,
+				2629299C7F12BB69BD94D462 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BD89043E67CF46F7163928BA /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4A1C6FDBDD568C8FD73E6CC1 /* HomeView.swift */,
+				9CEA535C9089C837C565D893 /* RecordingHUDView.swift */,
+				CBA5FD34CB941A6F3A7ED5E9 /* SessionDetailView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B431777B86D28B51CA195A61 /* CantoneseListener */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D4C267C2446D04EE8534AC9A /* Build configuration list for PBXNativeTarget "CantoneseListener" */;
+			buildPhases = (
+				18C548B8099F13066D761C60 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CantoneseListener;
+			packageProductDependencies = (
+			);
+			productName = CantoneseListener;
+			productReference = 1625B7645FAFDEFAADD9516D /* CantoneseListener.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3CE293FC57DC1A77E383333F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					B431777B86D28B51CA195A61 = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = F9FE1727924916F5201FE698 /* Build configuration list for PBXProject "CantoneseListener" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B58BCFDBD897F775285E3429;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 2629299C7F12BB69BD94D462 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B431777B86D28B51CA195A61 /* CantoneseListener */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		18C548B8099F13066D761C60 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BDC690D6B01857B4B99F55DA /* AppleASRService.swift in Sources */,
+				929FB10E16C4848796BA8DA6 /* AudioRecorderManager.swift in Sources */,
+				BA269C817DAC8A6C35D694FE /* CantoneseListenerApp.swift in Sources */,
+				80AD4F5DD28E405E6B8FE538 /* HomeView.swift in Sources */,
+				3428626F803B086146527DF5 /* Models.swift in Sources */,
+				58543F30282A0939DE905550 /* RecordingHUDView.swift in Sources */,
+				1FB448016B7F48F42C6D3C37 /* SessionDetailView.swift in Sources */,
+				0BDF15425500286E002C73A3 /* SessionManager.swift in Sources */,
+				D0909617ED192270E486FD4A /* TranslationService.swift in Sources */,
+				B8788DFFB5D612C7077B5D19 /* WatchConnectivityManager.swift in Sources */,
+				363104C33B79C39FEB869D21 /* WatchConnectivityProtocol.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		59AA1FDAA7EC687DE41D703E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access to record surrounding Cantonese conversations for listening exercises.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition permission to transcribe Cantonese conversations on-device.";
+				INFOPLIST_KEY_UIBackgroundModes = (
+					audio,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.dustland.CantoneseListener;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9CE7271AE157E048F4866E1A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C22C7F71D629D94623FC959A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access to record surrounding Cantonese conversations for listening exercises.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition permission to transcribe Cantonese conversations on-device.";
+				INFOPLIST_KEY_UIBackgroundModes = (
+					audio,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.dustland.CantoneseListener;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E3CC92BE65DFC627519BCF5D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D4C267C2446D04EE8534AC9A /* Build configuration list for PBXNativeTarget "CantoneseListener" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C22C7F71D629D94623FC959A /* Debug */,
+				59AA1FDAA7EC687DE41D703E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F9FE1727924916F5201FE698 /* Build configuration list for PBXProject "CantoneseListener" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9CE7271AE157E048F4866E1A /* Debug */,
+				E3CC92BE65DFC627519BCF5D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3CE293FC57DC1A77E383333F /* Project object */;
+}
