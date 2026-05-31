@@ -28,7 +28,7 @@ public struct HomeView: View {
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                             
-                            Text(AppText.t("Dialect listener", "Dialecter"))
+                            Text("Dialecter")
                                 .font(.system(.footnote, design: .rounded))
                                 .foregroundColor(.secondary)
                         }

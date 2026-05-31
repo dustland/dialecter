@@ -53,7 +53,7 @@
 **Commands:**
 - `plutil -lint DialectListener/Info.plist ExportOptions.plist DialectListener.xcodeproj/project.pbxproj`
 - `git status --short`
-- `gh workflow run testflight.yml --repo dustland/listener --ref main`
-- `gh run watch <run-id> --repo dustland/listener --interval 10 --exit-status`
+- `gh workflow run testflight.yml --repo dustland/dialecter --ref main`
+- `gh run watch <run-id> --repo dustland/dialecter --interval 10 --exit-status`
 
 **Expected:** Xcode archive, IPA export, artifact upload, and TestFlight upload all succeed.
