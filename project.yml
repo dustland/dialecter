@@ -17,4 +17,5 @@ targets:
         INFOPLIST_KEY_UIBackgroundModes: 
           - audio
         PRODUCT_BUNDLE_IDENTIFIER: com.dustland.DialectListener
+        CODE_SIGN_IDENTITY: "Apple Distribution"
         DEVELOPMENT_TEAM: "" # User can input their Apple Developer Team ID here
