@@ -12,6 +12,7 @@ build/
 Package.resolved
 
 # Apple signing material
+signing/
 *.cer
 *.p12
 *.mobileprovision
