@@ -1,19 +1,20 @@
-name: CantoneseListener
+name: DialectListener
 options:
   bundleIdPrefix: com.dustland
 targets:
-  CantoneseListener:
+  DialectListener:
     type: application
     platform: iOS
     deploymentTarget: "17.0"
     sources:
-      - path: CantoneseListener
+      - path: DialectListener
       - path: Shared
     settings:
       base:
-        INFOPLIST_KEY_NSMicrophoneUsageDescription: "We need microphone access to record surrounding Cantonese conversations for listening exercises."
-        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "We need speech recognition permission to transcribe Cantonese conversations on-device."
+        INFOPLIST_KEY_CFBundleDisplayName: "Dialect Listener"
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "We need microphone access to record surrounding dialect conversations for listening exercises."
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "We need speech recognition permission to transcribe dialect conversations on-device."
         INFOPLIST_KEY_UIBackgroundModes: 
           - audio
-        PRODUCT_BUNDLE_IDENTIFIER: com.dustland.CantoneseListener
+        PRODUCT_BUNDLE_IDENTIFIER: com.dustland.DialectListener
         DEVELOPMENT_TEAM: "" # User can input their Apple Developer Team ID here

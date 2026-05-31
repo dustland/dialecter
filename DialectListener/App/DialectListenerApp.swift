@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct CantoneseListenerApp: App {
+struct DialectListenerApp: App {
     
     // Setup modern SwiftData container for our models
     let container: ModelContainer

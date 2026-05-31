@@ -4,16 +4,16 @@ import OSLog
 import Translation
 #endif
 
-/// Pluggable translation service to convert Cantonese colloquial text to Written Mandarin Chinese.
+/// Pluggable translation service to convert colloquial dialect text to written Mandarin Chinese.
 public protocol TranslationServiceProtocol {
     func translate(_ segments: [SpeechSegment]) async throws -> [TranscriptLine]
 }
 
-/// A premium Translation service using Google's Gemini API to achieve high-fidelity Cantonese to Written Chinese translation.
-/// Understands slangs, particles, English code-switching, and cultural context.
+/// A premium translation service using Google's Gemini API to produce high-fidelity written Chinese.
+/// Understands slang, particles, English code-switching, and cultural context.
 public final class GeminiTranslationService: TranslationServiceProtocol {
     
-    private let logger = Logger(subsystem: "com.dustland.CantoneseListener", category: "GeminiTranslationService")
+    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "GeminiTranslationService")
     private let apiKey: String?
     
     public init(apiKey: String? = nil) {
@@ -33,11 +33,11 @@ public final class GeminiTranslationService: TranslationServiceProtocol {
         let inputLines = segments.map { "[\($0.start)-\($0.end)]: \($0.text)" }.joined(separator: "\n")
         
         let prompt = """
-        You are an expert bilingual Cantonese-to-Mandarin translator in Hong Kong.
-        Translate the following timestamped colloquial Cantonese segments line-by-line into standard Written Chinese (Mandarin).
+        You are an expert translator for Chinese dialect learning.
+        Translate the following timestamped colloquial dialect segments line-by-line into standard Written Chinese (Mandarin).
         Do not explain. Preserve the exact time frames. Maintain the exact line count. Keep formatting as JSON:
         [
-          {"start": 1.2, "end": 4.5, "cantonese": "佢今日好似冇返工啵。", "translation": "他今天好像没上班。"}
+          {"start": 1.2, "end": 4.5, "dialect": "佢今日好似冇返工啵。", "translation": "他今天好像没上班。"}
         ]
         
         Segments to translate:
@@ -88,7 +88,7 @@ public final class GeminiTranslationService: TranslationServiceProtocol {
         struct TranslatedItem: Codable {
             let start: Double
             let end: Double
-            let cantonese: String
+            let dialect: String
             let translation: String
         }
         
@@ -99,7 +99,7 @@ public final class GeminiTranslationService: TranslationServiceProtocol {
             TranscriptLine(
                 startTimestamp: item.start,
                 endTimestamp: item.end,
-                cantoneseText: item.cantonese,
+                dialectText: item.dialect,
                 translationText: item.translation
             )
         }
@@ -107,10 +107,10 @@ public final class GeminiTranslationService: TranslationServiceProtocol {
 }
 
 /// Fallback dictionary-based translator for offline or mock operation.
-/// Translates common colloquial Cantonese pronouns, auxiliary verbs, and particles into standard Mandarin Chinese.
+/// Translates common colloquial dialect pronouns, auxiliary verbs, and particles into standard Mandarin Chinese.
 public final class LocalRuleTranslationService: TranslationServiceProtocol {
     
-    private let logger = Logger(subsystem: "com.dustland.CantoneseListener", category: "LocalRuleTranslationService")
+    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "LocalRuleTranslationService")
     
     // Core mapping dictionary
     private let dict: [String: String] = [
@@ -165,7 +165,7 @@ public final class LocalRuleTranslationService: TranslationServiceProtocol {
             return TranscriptLine(
                 startTimestamp: segment.start,
                 endTimestamp: segment.end,
-                cantoneseText: segment.text,
+                dialectText: segment.text,
                 translationText: translated
             )
         }
@@ -175,7 +175,7 @@ public final class LocalRuleTranslationService: TranslationServiceProtocol {
 /// Composite service which attempts Gemini if configured, iOS 18 Translation API if on compatible systems, and falls back to LocalRule translation.
 public final class SmartTranslationService: TranslationServiceProtocol {
     
-    private let logger = Logger(subsystem: "com.dustland.CantoneseListener", category: "SmartTranslationService")
+    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "SmartTranslationService")
     private let geminiService: GeminiTranslationService
     private let localService: LocalRuleTranslationService
     
@@ -210,7 +210,7 @@ public final class SmartTranslationService: TranslationServiceProtocol {
                     lines.append(TranscriptLine(
                         startTimestamp: segment.start,
                         endTimestamp: segment.end,
-                        cantoneseText: segment.text,
+                        dialectText: segment.text,
                         translationText: response.targetText
                     ))
                 }

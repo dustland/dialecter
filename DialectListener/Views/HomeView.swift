@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-/// Home dashboard view of Cantonese Listener on iPhone.
+/// Home dashboard view of Dialect Listener on iPhone.
 /// Offers direct control to start a listening session and shows a history list of past recordings.
 public struct HomeView: View {
     
@@ -30,7 +30,7 @@ public struct HomeView: View {
                     // Header Status HUD
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Cantonese Listener")
+                            Text("Dialect Listener")
                                 .font(.system(.title, design: .rounded))
                                 .fontWeight(.black)
                                 .foregroundColor(.white)

@@ -39,7 +39,7 @@ public struct RecordingHUDView: View {
                             .tracking(2)
                     }
                     
-                    Text("Cantonese Listener is recording surrounding audio...")
+                    Text("Dialect Listener is recording surrounding audio...")
                         .font(.system(.caption2, design: .rounded))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)

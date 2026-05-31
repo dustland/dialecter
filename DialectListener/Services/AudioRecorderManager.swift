@@ -28,7 +28,7 @@ public enum AudioRecordingError: Error, LocalizedError {
 @Observable
 public final class AudioRecorderManager {
     
-    private let logger = Logger(subsystem: "com.dustland.CantoneseListener", category: "AudioRecorderManager")
+    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "AudioRecorderManager")
     
     public var isRecording: Bool = false
     public var currentDuration: TimeInterval = 0.0
@@ -80,7 +80,7 @@ public final class AudioRecorderManager {
         
         let fileURL = audioFolderURL.appendingPathComponent("\(sessionId.uuidString).m4a")
         
-        // Optimized settings for Cantonese ASR
+        // Optimized settings for speech ASR
         let settings: [String: Any] = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: 16000.0, // 16kHz is ideal for ASR

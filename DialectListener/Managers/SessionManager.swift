@@ -8,7 +8,7 @@ import OSLog
 @MainActor
 public final class SessionManager {
     
-    private let logger = Logger(subsystem: "com.dustland.CantoneseListener", category: "SessionManager")
+    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "SessionManager")
     
     // Core Dependencies
     public let connectivityManager: WatchConnectivityManager
@@ -237,7 +237,7 @@ public final class SessionManager {
     /// Triggers speech-to-text and translation pipeline in a background task
     private func triggerAsyncProcessing(for session: Session) {
         Task.detached(priority: .background) {
-            let logger = Logger(subsystem: "com.dustland.CantoneseListener", category: "BackgroundASRTask")
+            let logger = Logger(subsystem: "com.dustland.DialectListener", category: "BackgroundASRTask")
             
             // Get full audio path on device
             let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -246,7 +246,7 @@ public final class SessionManager {
             var lines: [TranscriptLine] = []
             
             do {
-                // Step 1: Run native Cantonese ASR
+                // Step 1: Run native dialect ASR
                 let segments = try await self.asrService.transcribe(audioURL: audioURL)
                 
                 // Step 2: Run translation (smart fallback routing)
@@ -260,7 +260,7 @@ public final class SessionManager {
                     TranscriptLine(
                         startTimestamp: 0.0,
                         endTimestamp: 2.0,
-                        cantoneseText: "[語音識別未能完成 / Audio Unrecognized]",
+                        dialectText: "[語音識別未能完成 / Audio Unrecognized]",
                         translationText: "[翻译暂不可用 / Translation Unavailable]"
                     )
                 ]

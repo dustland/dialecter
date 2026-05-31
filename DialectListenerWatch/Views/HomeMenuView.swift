@@ -76,7 +76,7 @@ public struct HomeMenuView: View {
                 
                 Spacer()
             }
-            .navigationTitle("Cantonese Listener")
+            .navigationTitle("Dialect Listener")
             .navigationBarTitleDisplayMode(.inline)
             .background(
                 // Elegant dark background with atmospheric radial glow

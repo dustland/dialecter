@@ -2,15 +2,12 @@ name: TestFlight
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 env:
-  PROJECT_PATH: CantoneseListener.xcodeproj
-  SCHEME: CantoneseListener
+  PROJECT_PATH: DialectListener.xcodeproj
+  SCHEME: DialectListener
   CONFIGURATION: Release
-  APP_BUNDLE_ID: ${{ vars.APP_BUNDLE_ID || 'com.dustland.CantoneseListener' }}
+  APP_BUNDLE_ID: ${{ vars.APP_BUNDLE_ID || 'com.dustland.DialectListener' }}
   MARKETING_VERSION: ${{ vars.MARKETING_VERSION || '1.0' }}
 
 jobs:
@@ -24,6 +21,25 @@ jobs:
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Validate required secrets
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_API_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [ -n "$APPLE_TEAM_ID" ] || missing+=("APPLE_TEAM_ID")
+          [ -n "$ASC_KEY_ID" ] || missing+=("APP_STORE_CONNECT_API_KEY_ID")
+          [ -n "$ASC_ISSUER_ID" ] || missing+=("APP_STORE_CONNECT_API_ISSUER_ID")
+          [ -n "$ASC_PRIVATE_KEY" ] || missing+=("APP_STORE_CONNECT_API_PRIVATE_KEY")
+          if [ "${#missing[@]}" -gt 0 ]; then
+            printf 'Missing required GitHub Actions secrets:\n'
+            printf ' - %s\n' "${missing[@]}"
+            exit 1
+          fi
 
       - name: Write App Store Connect API key
         env:
@@ -77,7 +93,7 @@ jobs:
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CantoneseListener-ipa
+          name: DialectListener-ipa
           path: ${{ runner.temp }}/export/*.ipa
           if-no-files-found: error
 

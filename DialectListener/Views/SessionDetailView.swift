@@ -281,7 +281,7 @@ public struct SessionDetailView: View {
             player.prepareToPlay()
             self.audioPlayer = player
         } catch {
-            Logger(subsystem: "com.dustland.CantoneseListener", category: "DetailPlayback").error("Failed to load session audio: \(error.localizedDescription)")
+            Logger(subsystem: "com.dustland.DialectListener", category: "DetailPlayback").error("Failed to load session audio: \(error.localizedDescription)")
         }
     }
     
@@ -386,8 +386,8 @@ struct TranscriptLineRow: View {
                     Spacer()
                 }
                 
-                // Cantonese Line
-                Text(line.cantoneseText)
+                // Original dialect line
+                Text(line.dialectText)
                     .font(.system(.title3, design: .rounded))
                     .fontWeight(.bold)
                     .foregroundColor(isActive ? .blue : .white)

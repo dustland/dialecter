@@ -4,7 +4,7 @@ This project can be built and uploaded to TestFlight by GitHub Actions without i
 
 ## Apple Developer Setup
 
-1. In Apple Developer, create or confirm the App ID for `com.dustland.CantoneseListener`.
+1. In Apple Developer, create or confirm the App ID for `com.dustland.DialectListener`.
 2. In App Store Connect, create the app record with the same bundle ID.
 3. Create an App Store Connect API key with permission to upload builds. Save the key ID, issuer ID, and the `.p8` private key content.
 
@@ -19,11 +19,11 @@ Add these repository secrets:
 
 Optional repository variables:
 
-- `APP_BUNDLE_ID`: defaults to `com.dustland.CantoneseListener`.
+- `APP_BUNDLE_ID`: defaults to `com.dustland.DialectListener`.
 - `MARKETING_VERSION`: defaults to `1.0`.
 
 ## Build
 
-Push to `main`, or run the `TestFlight` workflow manually from the GitHub Actions tab.
+Run the `TestFlight` workflow manually from the GitHub Actions tab after the secrets are configured.
 
 The workflow archives the app, exports an `.ipa`, stores it as a GitHub Actions artifact, and uploads it to TestFlight.

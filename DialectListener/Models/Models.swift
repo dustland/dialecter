@@ -6,14 +6,14 @@ public struct TranscriptLine: Codable, Identifiable {
     public var id: UUID
     public var startTimestamp: TimeInterval
     public var endTimestamp: TimeInterval
-    public var cantoneseText: String
+    public var dialectText: String
     public var translationText: String
     
-    public init(id: UUID = UUID(), startTimestamp: TimeInterval, endTimestamp: TimeInterval, cantoneseText: String, translationText: String) {
+    public init(id: UUID = UUID(), startTimestamp: TimeInterval, endTimestamp: TimeInterval, dialectText: String, translationText: String) {
         self.id = id
         self.startTimestamp = startTimestamp
         self.endTimestamp = endTimestamp
-        self.cantoneseText = cantoneseText
+        self.dialectText = dialectText
         self.translationText = translationText
     }
 }

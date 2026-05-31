@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B431777B86D28B51CA195A61"
-               BuildableName = "CantoneseListener.app"
-               BlueprintName = "CantoneseListener"
-               ReferencedContainer = "container:CantoneseListener.xcodeproj">
+               BuildableName = "DialectListener.app"
+               BlueprintName = "DialectListener"
+               ReferencedContainer = "container:DialectListener.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B431777B86D28B51CA195A61"
-            BuildableName = "CantoneseListener.app"
-            BlueprintName = "CantoneseListener"
-            ReferencedContainer = "container:CantoneseListener.xcodeproj">
+            BuildableName = "DialectListener.app"
+            BlueprintName = "DialectListener"
+            ReferencedContainer = "container:DialectListener.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B431777B86D28B51CA195A61"
-            BuildableName = "CantoneseListener.app"
-            BlueprintName = "CantoneseListener"
-            ReferencedContainer = "container:CantoneseListener.xcodeproj">
+            BuildableName = "DialectListener.app"
+            BlueprintName = "DialectListener"
+            ReferencedContainer = "container:DialectListener.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

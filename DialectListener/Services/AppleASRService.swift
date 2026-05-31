@@ -16,12 +16,12 @@ public protocol ASRServiceProtocol {
     func transcribe(audioURL: URL) async throws -> [SpeechSegment]
 }
 
-/// Concrete implementation of Speech-to-Text using Apple's native SFSpeechRecognizer.
-/// Configured for Cantonese (zh-HK) and supports fully offline, on-device transcription where available.
+/// Concrete implementation of speech-to-text using Apple's native SFSpeechRecognizer.
+/// Defaults to the Hong Kong Chinese locale and supports fully offline, on-device transcription where available.
 public final class AppleASRService: ASRServiceProtocol {
     
-    private let logger = Logger(subsystem: "com.dustland.CantoneseListener", category: "AppleASRService")
-    private let locale = Locale(identifier: "zh-HK") // Optimized for Hong Kong Cantonese
+    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "AppleASRService")
+    private let locale = Locale(identifier: "zh-HK") // Default dialect profile for the first release
     
     public init() {}
     
@@ -42,8 +42,8 @@ public final class AppleASRService: ASRServiceProtocol {
     /// Asynchronously transcribes a local audio file and returns a list of time-stamped speech segments.
     public func transcribe(audioURL: URL) async throws -> [SpeechSegment] {
         guard let recognizer = SFSpeechRecognizer(locale: locale) else {
-            logger.error("Cantonese SFSpeechRecognizer could not be initialized.")
-            throw NSError(domain: "AppleASRService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Cantonese Speech Recognizer is not supported on this device."])
+            logger.error("SFSpeechRecognizer could not be initialized for locale \(self.locale.identifier).")
+            throw NSError(domain: "AppleASRService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Speech recognizer is not supported for the selected dialect on this device."])
         }
         
         guard recognizer.isAvailable else {
@@ -56,7 +56,7 @@ public final class AppleASRService: ASRServiceProtocol {
         // Request on-device offline recognition to protect privacy and run without cellular network
         request.requiresOnDeviceRecognition = true
         
-        logger.info("Starting Cantonese ASR for file: \(audioURL.lastPathComponent)")
+        logger.info("Starting dialect ASR for file: \(audioURL.lastPathComponent)")
         
         return try await withCheckedThrowingContinuation { continuation in
             recognizer.recognitionTask(with: request) { [weak self] result, error in
@@ -89,7 +89,7 @@ public final class AppleASRService: ASRServiceProtocol {
                         segments.append(SpeechSegment(start: start, end: end, text: text))
                     }
                     
-                    self?.logger.info("Successfully transcribed \(segments.count) spoken segments in Cantonese.")
+                    self?.logger.info("Successfully transcribed \(segments.count) spoken segments.")
                     continuation.resume(returning: segments)
                 }
             }
