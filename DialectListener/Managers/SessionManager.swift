@@ -269,22 +269,76 @@ public final class SessionManager {
     private func handleLiveTranscription(_ result: Result<LiveTranscriptionUpdate, Error>) {
         switch result {
         case .success(let update):
-            var existingTranslations: [String: String] = [:]
-            for line in liveTranscriptLines where !line.translationText.isEmpty {
-                existingTranslations[line.dialectText] = line.translationText
-            }
-            liveTranscriptLines = update.segments.map { segment in
-                TranscriptLine(
-                    startTimestamp: segment.start,
-                    endTimestamp: segment.end,
-                    dialectText: segment.text,
-                    translationText: existingTranslations[segment.text] ?? ""
-                )
-            }
+            liveTranscriptLines = mergedTranscriptLines(
+                existing: liveTranscriptLines,
+                incomingSegments: update.segments
+            )
             scheduleLiveTranslation()
         case .failure(let error):
             liveTranslationStatus = AppText.t("Speech recognition paused", "语音识别已暂停") + ": \(error.localizedDescription)"
         }
+    }
+
+    private func mergedTranscriptLines(existing: [TranscriptLine], incomingSegments: [SpeechSegment]) -> [TranscriptLine] {
+        var merged = existing
+
+        for segment in incomingSegments {
+            let text = segment.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !text.isEmpty else { continue }
+
+            if let index = merged.firstIndex(where: { isSameLiveSegment($0, segment) }) {
+                let oldLine = merged[index]
+                merged[index] = TranscriptLine(
+                    id: oldLine.id,
+                    startTimestamp: segment.start,
+                    endTimestamp: segment.end,
+                    dialectText: text,
+                    translationText: oldLine.dialectText == text ? oldLine.translationText : ""
+                )
+            } else {
+                merged.append(
+                    TranscriptLine(
+                        startTimestamp: segment.start,
+                        endTimestamp: segment.end,
+                        dialectText: text,
+                        translationText: ""
+                    )
+                )
+            }
+        }
+
+        return deduplicatedTranscriptLines(merged.sorted { $0.startTimestamp < $1.startTimestamp })
+    }
+
+    private func isSameLiveSegment(_ line: TranscriptLine, _ segment: SpeechSegment) -> Bool {
+        let closeStart = abs(line.startTimestamp - segment.start) < 0.45
+        let closeEnd = abs(line.endTimestamp - segment.end) < 0.8
+        let sameText = line.dialectText == segment.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (closeStart && closeEnd) || (sameText && closeStart)
+    }
+
+    private func deduplicatedTranscriptLines(_ lines: [TranscriptLine]) -> [TranscriptLine] {
+        var output: [TranscriptLine] = []
+        for line in lines {
+            if let last = output.last,
+               last.dialectText == line.dialectText,
+               abs(last.startTimestamp - line.startTimestamp) < 0.6 {
+                if line.endTimestamp >= last.endTimestamp {
+                    output[output.count - 1] = line.translationText.isEmpty && !last.translationText.isEmpty
+                        ? TranscriptLine(
+                            id: last.id,
+                            startTimestamp: line.startTimestamp,
+                            endTimestamp: line.endTimestamp,
+                            dialectText: line.dialectText,
+                            translationText: last.translationText
+                        )
+                        : line
+                }
+            } else {
+                output.append(line)
+            }
+        }
+        return output
     }
 
     private func scheduleLiveTranslation() {
@@ -310,10 +364,13 @@ public final class SessionManager {
                 let translatedLines = try await self.translationService.translate(segments, target: target)
 
                 await MainActor.run {
-                    self.liveTranscriptLines = translatedLines
+                    self.liveTranscriptLines = self.mergedTranslatedLines(
+                        current: self.liveTranscriptLines,
+                        translated: translatedLines
+                    )
                     self.lastTranslatedSnapshot = snapshot
                     self.liveTranslationStatus = AppText.t("Live translation", "实时翻译")
-                    self.activeSession?.transcript = translatedLines
+                    self.activeSession?.transcript = self.liveTranscriptLines
                     self.activeSession?.isProcessed = true
                     try? self.modelContext?.save()
                 }
@@ -325,6 +382,31 @@ public final class SessionManager {
                 }
             }
         }
+    }
+
+    private func mergedTranslatedLines(current: [TranscriptLine], translated: [TranscriptLine]) -> [TranscriptLine] {
+        current.map { line in
+            guard let translatedLine = translated.first(where: { isSameTranscriptLine(line, $0) }) else {
+                return line
+            }
+
+            return TranscriptLine(
+                id: line.id,
+                startTimestamp: line.startTimestamp,
+                endTimestamp: line.endTimestamp,
+                dialectText: line.dialectText,
+                translationText: translatedLine.translationText
+            )
+        }
+    }
+
+    private func isSameTranscriptLine(_ lhs: TranscriptLine, _ rhs: TranscriptLine) -> Bool {
+        normalizedTranscriptText(lhs.dialectText) == normalizedTranscriptText(rhs.dialectText)
+    }
+
+    private func normalizedTranscriptText(_ text: String) -> String {
+        text.replacingOccurrences(of: " ", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     /// Triggers speech-to-text and translation pipeline in a background task

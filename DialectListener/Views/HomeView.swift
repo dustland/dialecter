@@ -21,12 +21,12 @@ public struct HomeView: View {
                 VStack(spacing: 18) {
                     HStack {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("Dialecter")
+                            Text(AppText.t("Dialecter", "方言家"))
                                 .font(.system(.title2, design: .rounded))
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                             
-                            Text(AppText.t("方言家", "方言家"))
+                            Text(AppText.t("Dialect listener", "Dialecter"))
                                 .font(.system(.footnote, design: .rounded))
                                 .foregroundColor(.secondary)
                         }
@@ -221,7 +221,7 @@ struct SessionCard: View {
                     }
                     
                     if !session.isProcessed {
-                        Text("• Processing...")
+                        Text(AppText.t("Processing...", "处理中..."))
                             .foregroundColor(.orange)
                             .fontWeight(.medium)
                     }

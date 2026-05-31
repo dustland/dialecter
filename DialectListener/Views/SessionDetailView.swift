@@ -40,7 +40,7 @@ public struct SessionDetailView: View {
                     }) {
                         HStack(spacing: 5) {
                             Image(systemName: "chevron.left")
-                            Text("Back")
+                            Text(AppText.t("Back", "返回"))
                         }
                         .fontWeight(.medium)
                         .foregroundColor(.blue)
@@ -48,7 +48,7 @@ public struct SessionDetailView: View {
                     
                     Spacer()
                     
-                    Text("Review Session")
+                    Text(AppText.t("Review Session", "回听记录"))
                         .font(.system(.headline, design: .rounded))
                         .foregroundColor(.white)
                     
@@ -78,9 +78,9 @@ public struct SessionDetailView: View {
                     
                     HStack(spacing: 12) {
                         Label(formatDuration(session.duration), systemImage: "clock.fill")
-                        Label("\(session.bookmarks.count) Bookmarks", systemImage: "bookmark.fill")
+                        Label(AppText.t("\(session.bookmarks.count) Bookmarks", "\(session.bookmarks.count) 个书签"), systemImage: "bookmark.fill")
                         if session.isProcessed {
-                            Label("Transcribed", systemImage: "checkmark.circle.fill")
+                            Label(AppText.t("Transcribed", "已转写"), systemImage: "checkmark.circle.fill")
                                 .foregroundColor(.green)
                         }
                     }
@@ -98,7 +98,7 @@ public struct SessionDetailView: View {
                                 VStack(spacing: 20) {
                                     ProgressView()
                                         .tint(.orange)
-                                    Text("Unified speech recognition and translation is running in the background. Check back in a few seconds!")
+                                    Text(AppText.t("Speech recognition and translation are still running. Check back in a few seconds.", "语音识别和翻译还在后台处理中，稍后再回来查看。"))
                                         .font(.system(.body, design: .rounded))
                                         .foregroundColor(.secondary)
                                         .multilineTextAlignment(.center)
@@ -110,7 +110,7 @@ public struct SessionDetailView: View {
                                     Image(systemName: "mic.slash.fill")
                                         .font(.largeTitle)
                                         .foregroundColor(.white.opacity(0.2))
-                                    Text("No speech recognized in this session.")
+                                    Text(AppText.t("No speech recognized in this session.", "这次记录里没有识别到语音。"))
                                         .font(.system(.body, design: .rounded))
                                         .foregroundColor(.secondary)
                                 }
@@ -144,7 +144,7 @@ public struct SessionDetailView: View {
                 // Bookmarks Timeline strip (Horizontal)
                 if !session.bookmarks.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Bookmarks TIMELINE")
+                        Text(AppText.t("Bookmarks Timeline", "书签时间线"))
                             .font(.system(.caption2, design: .monospaced))
                             .fontWeight(.bold)
                             .foregroundColor(.secondary)

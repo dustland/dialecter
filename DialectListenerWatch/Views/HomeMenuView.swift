@@ -6,6 +6,11 @@ public struct HomeMenuView: View {
     
     @State private var connectivityManager = WatchConnectivityManagerWatch()
     @State private var isPulseAnimating = false
+
+    private var isSimplifiedChinese: Bool {
+        Locale.preferredLanguages.first?.hasPrefix("zh-Hans") == true
+            || Locale.preferredLanguages.first?.hasPrefix("zh-CN") == true
+    }
     
     public var body: some View {
         NavigationStack {
@@ -19,7 +24,7 @@ public struct HomeMenuView: View {
                         .frame(width: 8, height: 8)
                         .shadow(color: connectivityManager.isReachable ? .green.opacity(0.5) : .clear, radius: 4)
                     
-                    Text(connectivityManager.isReachable ? "Connected to iPhone" : "iPhone Disconnected")
+                    Text(connectivityManager.isReachable ? localized("Connected to iPhone", "已连接 iPhone") : localized("iPhone Disconnected", "iPhone 未连接"))
                         .font(.system(.footnote, design: .rounded))
                         .foregroundColor(.secondary)
                 }
@@ -61,7 +66,7 @@ public struct HomeMenuView: View {
                                 .font(.system(size: 24, weight: .semibold))
                                 .foregroundColor(.white)
                             
-                            Text("Start")
+                            Text(localized("Start", "开始"))
                                 .font(.system(.body, design: .rounded))
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -76,7 +81,7 @@ public struct HomeMenuView: View {
                 
                 Spacer()
             }
-            .navigationTitle("Dialecter")
+            .navigationTitle(localized("Dialecter", "方言家"))
             .navigationBarTitleDisplayMode(.inline)
             .background(
                 // Elegant dark background with atmospheric radial glow
@@ -94,6 +99,10 @@ public struct HomeMenuView: View {
                 ListeningSessionView(connectivityManager: connectivityManager)
             }
         }
+    }
+
+    private func localized(_ english: String, _ simplifiedChinese: String) -> String {
+        isSimplifiedChinese ? simplifiedChinese : english
     }
 }
 
