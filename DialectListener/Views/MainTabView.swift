@@ -30,6 +30,7 @@ private struct AgentView: View {
     @State private var messages: [AgentMessage] = []
     @State private var inputText = ""
     @State private var isSending = false
+    @State private var isTextEditing = false
     @State private var isVoiceRecording = false
     @State private var statusText: String?
     @State private var voiceStartTask: Task<Void, Never>?
@@ -65,6 +66,11 @@ private struct AgentView: View {
         .onAppear {
             sessionManager.setModelContext(modelContext)
         }
+        .onChange(of: isInputFocused) { _, focused in
+            if !focused && inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                isTextEditing = false
+            }
+        }
         .onChange(of: dictationManager.transcript) { _, newValue in
             guard isVoiceRecording else { return }
             inputText = newValue
@@ -85,13 +91,11 @@ private struct AgentView: View {
     private var header: some View {
         HStack(spacing: 10) {
             ZStack {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.mint.opacity(0.16))
+                Image("AppIcon")
+                    .resizable()
+                    .scaledToFill()
                     .frame(width: 34, height: 34)
-                Text("方")
-                    .font(.system(.headline, design: .rounded))
-                    .fontWeight(.black)
-                    .foregroundColor(.mint)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
 
             Text("\(settings.chatTargetDialect.title) ↔ \(AppText.t("Mandarin", "普通话"))")
@@ -268,7 +272,7 @@ private struct AgentView: View {
 
     @ViewBuilder
     private var composerField: some View {
-        if isInputFocused || !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if isTextEditing || isInputFocused || !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             TextEditor(text: $inputText)
                 .focused($isInputFocused)
                 .font(.system(.body, design: .rounded))
@@ -298,7 +302,7 @@ private struct AgentView: View {
                 .cornerRadius(24)
                 .contentShape(RoundedRectangle(cornerRadius: 24))
                 .onTapGesture {
-                    isInputFocused = true
+                    startTextInput()
                 }
                 .onLongPressGesture(
                     minimumDuration: 0.18,
@@ -347,6 +351,7 @@ private struct AgentView: View {
     private func beginVoiceMessage() {
         guard !isVoiceRecording, !dictationManager.isRecording else { return }
         isInputFocused = false
+        isTextEditing = true
         isVoiceRecording = true
         inputText = ""
         statusText = AppText.t("Listening...", "正在听你说...")
@@ -398,6 +403,7 @@ private struct AgentView: View {
 
         inputText = ""
         isInputFocused = false
+        isTextEditing = false
         statusText = nil
         isSending = true
         messages.append(AgentMessage(kind: .user, primaryText: textToSend))
@@ -423,6 +429,17 @@ private struct AgentView: View {
                     isSending = false
                 }
             }
+        }
+    }
+
+    private func startTextInput() {
+        voiceStartTask?.cancel()
+        voiceStartTask = nil
+        guard !isVoiceRecording else { return }
+
+        isTextEditing = true
+        DispatchQueue.main.async {
+            isInputFocused = true
         }
     }
 
