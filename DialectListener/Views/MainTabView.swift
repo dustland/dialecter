@@ -30,10 +30,8 @@ private struct AgentView: View {
     @State private var messages: [AgentMessage] = []
     @State private var inputText = ""
     @State private var isSending = false
-    @State private var isTextEditing = false
     @State private var isVoiceRecording = false
     @State private var statusText: String?
-    @State private var voiceStartTask: Task<Void, Never>?
     @State private var dictationManager = MandarinDictationManager()
     @State private var speechSynthesizer = AVSpeechSynthesizer()
     @FocusState private var isInputFocused: Bool
@@ -66,11 +64,6 @@ private struct AgentView: View {
         .onAppear {
             sessionManager.setModelContext(modelContext)
         }
-        .onChange(of: isInputFocused) { _, focused in
-            if !focused && inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                isTextEditing = false
-            }
-        }
         .onChange(of: dictationManager.transcript) { _, newValue in
             guard isVoiceRecording else { return }
             inputText = newValue
@@ -82,7 +75,6 @@ private struct AgentView: View {
             syncAmbientMessages()
         }
         .onDisappear {
-            voiceStartTask?.cancel()
             dictationManager.stop()
             speechSynthesizer.stopSpeaking(at: .immediate)
         }
@@ -91,11 +83,17 @@ private struct AgentView: View {
     private var header: some View {
         HStack(spacing: 10) {
             ZStack {
-                Image("AppIcon")
-                    .resizable()
-                    .scaledToFill()
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white.opacity(0.06))
                     .frame(width: 34, height: 34)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
+
+                Text("粤")
+                    .font(.system(size: 15, weight: .black, design: .rounded))
+                    .foregroundColor(.mint)
             }
 
             Text("\(settings.chatTargetDialect.title) ↔ \(AppText.t("Mandarin", "普通话"))")
@@ -272,7 +270,7 @@ private struct AgentView: View {
 
     @ViewBuilder
     private var composerField: some View {
-        if isTextEditing || isInputFocused || !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        ZStack(alignment: .topLeading) {
             TextEditor(text: $inputText)
                 .focused($isInputFocused)
                 .font(.system(.body, design: .rounded))
@@ -287,36 +285,36 @@ private struct AgentView: View {
                         .stroke(isVoiceRecording ? Color.mint.opacity(0.6) : Color.white.opacity(0.08), lineWidth: 1)
                 )
                 .cornerRadius(20)
-        } else {
-            Text(AppText.t("Hold to speak, tap to type", "按住说话，点按输入"))
-                .font(.system(.body, design: .rounded))
-                .fontWeight(.semibold)
-                .foregroundColor(.white.opacity(0.88))
-                .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-                .padding(.horizontal, 14)
-                .background(Color.white.opacity(0.06))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(isVoiceRecording ? Color.mint.opacity(0.6) : Color.white.opacity(0.08), lineWidth: 1)
-                )
-                .cornerRadius(24)
-                .contentShape(RoundedRectangle(cornerRadius: 24))
-                .onTapGesture {
+
+            if inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text(isVoiceRecording ? AppText.t("Release to send", "松开发送") : AppText.t("Hold to speak, tap to type", "按住说话，点按输入"))
+                    .font(.system(.body, design: .rounded))
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white.opacity(0.72))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
+                    .allowsHitTesting(false)
+            }
+        }
+        .contentShape(RoundedRectangle(cornerRadius: 20))
+        .simultaneousGesture(
+            TapGesture()
+                .onEnded {
                     startTextInput()
                 }
-                .onLongPressGesture(
-                    minimumDuration: 0.18,
-                    maximumDistance: 44,
-                    pressing: { pressing in
-                        if pressing {
-                            scheduleVoiceMessageStart()
-                        } else {
-                            finishVoiceMessage()
-                        }
-                    },
-                    perform: {}
-                )
-        }
+        )
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.18, maximumDistance: 44)
+                .onEnded { _ in
+                    beginVoiceMessage()
+                }
+        )
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onEnded { _ in
+                    finishVoiceMessage()
+                }
+        )
     }
 
     private var ambientButton: some View {
@@ -335,23 +333,9 @@ private struct AgentView: View {
         !isSending && !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    private func scheduleVoiceMessageStart() {
-        guard voiceStartTask == nil, !isVoiceRecording, !dictationManager.isRecording else { return }
-
-        voiceStartTask = Task {
-            try? await Task.sleep(for: .milliseconds(180))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                beginVoiceMessage()
-                voiceStartTask = nil
-            }
-        }
-    }
-
     private func beginVoiceMessage() {
         guard !isVoiceRecording, !dictationManager.isRecording else { return }
         isInputFocused = false
-        isTextEditing = true
         isVoiceRecording = true
         inputText = ""
         statusText = AppText.t("Listening...", "正在听你说...")
@@ -378,8 +362,6 @@ private struct AgentView: View {
     }
 
     private func finishVoiceMessage() {
-        voiceStartTask?.cancel()
-        voiceStartTask = nil
         guard isVoiceRecording else { return }
         isVoiceRecording = false
         dictationManager.stop()
@@ -403,7 +385,6 @@ private struct AgentView: View {
 
         inputText = ""
         isInputFocused = false
-        isTextEditing = false
         statusText = nil
         isSending = true
         messages.append(AgentMessage(kind: .user, primaryText: textToSend))
@@ -433,11 +414,7 @@ private struct AgentView: View {
     }
 
     private func startTextInput() {
-        voiceStartTask?.cancel()
-        voiceStartTask = nil
         guard !isVoiceRecording else { return }
-
-        isTextEditing = true
         DispatchQueue.main.async {
             isInputFocused = true
         }
