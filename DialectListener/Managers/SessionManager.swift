@@ -31,6 +31,7 @@ public final class SessionManager {
     
     // Simulated timer for periodic status updates back to the watch
     private var watchSyncTimer: Timer?
+    private var liveSentenceTimer: Timer?
     private var liveTranslationTask: Task<Void, Never>?
     private var lastTranslatedSnapshot: String = ""
     private var liveASRSegments: [SpeechSegment] = []
@@ -125,6 +126,7 @@ public final class SessionManager {
             
             // 5. Start Watch sync loop
             startWatchSyncLoop()
+            startLiveSentenceLoop()
             
             // Immediately sync status back to Watch
             syncWatchState()
@@ -156,8 +158,13 @@ public final class SessionManager {
             
             // 2. Stop watch sync loop
             stopWatchSyncLoop()
+            stopLiveSentenceLoop()
             
             // 3. Update database entity with final details
+            liveTranscriptLines = mergeExistingTranslations(
+                oldLines: liveTranscriptLines,
+                newLines: sentenceLines(from: liveASRSegments, includePending: true, currentTime: duration)
+            )
             session.endTime = Date()
             session.duration = duration
             session.transcript = liveTranscriptLines
@@ -260,6 +267,22 @@ public final class SessionManager {
         watchSyncTimer?.invalidate()
         watchSyncTimer = nil
     }
+
+    private func startLiveSentenceLoop() {
+        stopLiveSentenceLoop()
+
+        liveSentenceTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            Task { @MainActor in
+                self.refreshPublishedLiveSentences()
+            }
+        }
+    }
+
+    private func stopLiveSentenceLoop() {
+        liveSentenceTimer?.invalidate()
+        liveSentenceTimer = nil
+    }
     
     private func syncWatchState() {
         let duration = recorderManager.currentDuration
@@ -274,14 +297,23 @@ public final class SessionManager {
         switch result {
         case .success(let update):
             liveASRSegments = mergedSpeechSegments(existing: liveASRSegments, incoming: update.segments)
-            liveTranscriptLines = mergeExistingTranslations(
-                oldLines: liveTranscriptLines,
-                newLines: sentenceLines(from: liveASRSegments)
-            )
-            scheduleLiveTranslation()
+            refreshPublishedLiveSentences()
         case .failure(let error):
             liveTranslationStatus = AppText.t("Speech recognition paused", "语音识别已暂停") + ": \(error.localizedDescription)"
         }
+    }
+
+    private func refreshPublishedLiveSentences() {
+        let newLines = sentenceLines(
+            from: liveASRSegments,
+            includePending: false,
+            currentTime: recorderManager.currentDuration
+        )
+        let mergedLines = mergeExistingTranslations(oldLines: liveTranscriptLines, newLines: newLines)
+        guard mergedLines.map(\.dialectText) != liveTranscriptLines.map(\.dialectText) else { return }
+
+        liveTranscriptLines = mergedLines
+        scheduleLiveTranslation()
     }
 
     private func mergedSpeechSegments(existing: [SpeechSegment], incoming: [SpeechSegment]) -> [SpeechSegment] {
@@ -328,15 +360,14 @@ public final class SessionManager {
         return output
     }
 
-    private func sentenceLines(from segments: [SpeechSegment]) -> [TranscriptLine] {
+    private func sentenceLines(from segments: [SpeechSegment], includePending: Bool, currentTime: TimeInterval) -> [TranscriptLine] {
         var lines: [TranscriptLine] = []
         var current: [SpeechSegment] = []
 
         for segment in segments.sorted(by: { $0.start < $1.start }) {
             if let previous = current.last {
                 let pause = segment.start - previous.end
-                let textLength = current.map(\.text).joined().count
-                if pause > 0.75 || textLength >= 22 || endsLikeSentence(previous.text) {
+                if pause > 0.75 || endsLikeSentence(previous.text) {
                     appendSentenceLine(from: current, to: &lines)
                     current = []
                 }
@@ -344,8 +375,17 @@ public final class SessionManager {
             current.append(segment)
         }
 
-        appendSentenceLine(from: current, to: &lines)
+        if includePending || pendingSentenceLooksComplete(current, currentTime: currentTime) {
+            appendSentenceLine(from: current, to: &lines)
+        }
         return lines
+    }
+
+    private func pendingSentenceLooksComplete(_ segments: [SpeechSegment], currentTime: TimeInterval) -> Bool {
+        guard let last = segments.last else { return false }
+        let text = joinedSpeechText(segments.map(\.text))
+        guard text.count >= 2 else { return false }
+        return endsLikeSentence(last.text) || currentTime - last.end > 0.9
     }
 
     private func appendSentenceLine(from segments: [SpeechSegment], to lines: inout [TranscriptLine]) {

@@ -20,12 +20,10 @@ public struct HomeView: View {
                 
                 VStack(spacing: 12) {
                     if sessionManager.isRecordingLocally {
-                        inlineListeningPanel
-                            .padding(.horizontal)
-                            .padding(.top, 8)
+                        listeningMessageList
+                    } else {
+                        sessionList
                     }
-
-                    sessionList
 
                     listenControlBar
                         .padding(.horizontal)
@@ -117,6 +115,18 @@ public struct HomeView: View {
             Spacer()
 
             if sessionManager.isRecordingLocally {
+                Button(action: {
+                    sessionManager.addBookmark(at: sessionManager.recorderManager.currentDuration)
+                }) {
+                    Image(systemName: "bookmark")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.secondary)
+                        .frame(width: 30, height: 30)
+                        .background(Color.white.opacity(0.06))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+
                 Text(formatDuration(sessionManager.recorderManager.currentDuration))
                     .font(.system(.caption, design: .monospaced))
                     .fontWeight(.semibold)
@@ -132,70 +142,55 @@ public struct HomeView: View {
         .cornerRadius(18)
     }
 
-    private var inlineListeningPanel: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 10) {
-                Circle()
-                    .fill(Color.cyan.opacity(0.85))
-                    .frame(width: 8, height: 8)
-
-                Text(formatDuration(sessionManager.recorderManager.currentDuration))
-                    .font(.system(.caption, design: .monospaced))
-                    .fontWeight(.bold)
-                    .foregroundColor(.cyan)
-
-                Text(sessionManager.liveTranslationStatus)
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-
-                Spacer()
-
-                Button(action: {
-                    sessionManager.addBookmark(at: sessionManager.recorderManager.currentDuration)
-                }) {
-                    Image(systemName: "bookmark")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.secondary)
-                        .frame(width: 30, height: 30)
-                        .background(Color.white.opacity(0.06))
-                        .clipShape(Circle())
-                }
-            }
-
-            let visibleLines = Array(sessionManager.liveTranscriptLines.suffix(4))
-            if !visibleLines.isEmpty {
-                VStack(alignment: .leading, spacing: 11) {
-                    ForEach(visibleLines) { line in
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(line.dialectText)
-                                .font(.system(.body, design: .rounded))
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .lineLimit(3)
-
-                            if !line.translationText.isEmpty {
-                                Text(line.translationText)
-                                    .font(.system(.callout, design: .rounded))
-                                    .foregroundColor(.cyan.opacity(0.85))
-                                    .lineLimit(3)
-                            }
+    private var listeningMessageList: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 10) {
+                    if sessionManager.liveTranscriptLines.isEmpty {
+                        Text(AppText.t("Listening...", "倾听中..."))
+                            .font(.system(.body, design: .rounded))
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, minHeight: 260, alignment: .center)
+                    } else {
+                        ForEach(sessionManager.liveTranscriptLines) { line in
+                            listeningMessageBubble(line)
+                                .id(line.id)
                         }
                     }
                 }
-            } else {
-                Text(AppText.t("Listening...", "倾听中..."))
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundColor(.secondary)
+                .padding(.horizontal, 18)
+                .padding(.top, 12)
+                .padding(.bottom, 12)
+            }
+            .onChange(of: sessionManager.liveTranscriptLines.count) { _, _ in
+                guard let lastLine = sessionManager.liveTranscriptLines.last else { return }
+                withAnimation(.easeOut(duration: 0.2)) {
+                    proxy.scrollTo(lastLine.id, anchor: .bottom)
+                }
             }
         }
-        .padding(12)
-        .background(.thinMaterial.opacity(0.3))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
+    }
+
+    private func listeningMessageBubble(_ line: TranscriptLine) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(line.dialectText)
+                .font(.system(.body, design: .rounded))
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if !line.translationText.isEmpty {
+                Text(line.translationText)
+                    .font(.system(.callout, design: .rounded))
+                    .foregroundColor(.cyan.opacity(0.88))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
+        .background(Color.white.opacity(0.08))
         .cornerRadius(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func toggleListening() {
