@@ -45,7 +45,7 @@ The main screen has three areas:
 
 3. Unified composer
    - The composer is the primary control.
-   - In idle state, it shows “按住说话” and a secondary “点一下输入文字”.
+   - In idle state, it shows one compact hint: “按住说话，点按输入”.
    - Tapping enters text input mode and opens the keyboard.
    - Holding starts dictation, shows recognized text inside the composer, and sends on release.
    - A small ambient listening control sits inside or beside the composer, visually secondary to direct user input.
@@ -68,8 +68,7 @@ The empty state disappears immediately after the first message appears.
 The composer has five states:
 
 1. Idle
-   - Text: “按住说话”.
-   - Secondary text: “点一下输入文字”.
+   - Text: “按住说话，点按输入”.
    - Tap transitions to text editing.
    - Long press transitions to voice recording.
 
