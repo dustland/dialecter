@@ -4,7 +4,7 @@ import AVFoundation
 public struct ChatView: View {
     @Bindable var settings: AppSettings
     @State private var inputText = ""
-    @State private var result: DialectChatResult?
+    @State private var messages: [ChatMessage] = []
     @State private var isTranslating = false
     @State private var isPressingVoice = false
     @FocusState private var isInputFocused: Bool
@@ -28,15 +28,11 @@ public struct ChatView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                header
-                    .padding(.horizontal, 18)
-                    .padding(.top, 12)
-                    .padding(.bottom, 8)
-
                 ScrollView {
-                    resultPanel
+                    messageList
                         .padding(.horizontal, 18)
-                        .padding(.vertical, 12)
+                        .padding(.top, 12)
+                        .padding(.bottom, 18)
                         .frame(maxWidth: .infinity, alignment: .top)
                 }
 
@@ -55,37 +51,6 @@ public struct ChatView: View {
             dictationManager.stop()
             isInputFocused = false
             speechSynthesizer.stopSpeaking(at: .immediate)
-        }
-    }
-
-    private var header: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(AppText.t("Chat", "畅聊"))
-                    .font(.system(.title3, design: .rounded))
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-
-                HStack(spacing: 8) {
-                    Label(AppText.t("Mandarin", "普通话"), systemImage: "text.quote")
-                    Text("->")
-                        .foregroundColor(.secondary)
-                    Label(settings.chatTargetDialect.title, systemImage: "bubble.left.and.bubble.right.fill")
-                }
-                .font(.system(.caption, design: .rounded))
-                .foregroundColor(.secondary)
-            }
-
-            Spacer()
-
-            Text(settings.aiModel.title)
-                .font(.system(.caption, design: .rounded))
-                .fontWeight(.bold)
-                .foregroundColor(.cyan)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(Color.white.opacity(0.06))
-                .clipShape(Capsule())
         }
     }
 
@@ -188,69 +153,73 @@ public struct ChatView: View {
         }
     }
 
-    private var resultPanel: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            if let result {
-                messageBubble(title: AppText.t("You", "你"), text: result.mandarinText, isUser: true)
-                messageBubble(title: settings.chatTargetDialect.title, text: result.dialectText, isUser: false)
-                resultBlock(title: AppText.t("Pronunciation", "发音"), text: result.pronunciation, prominent: false)
-                resultBlock(title: AppText.t("Note", "提示"), text: result.usageNote, prominent: false)
-
-                playButton
+    private var messageList: some View {
+        LazyVStack(spacing: 12) {
+            if messages.isEmpty {
+                Spacer()
+                    .frame(height: 260)
             } else {
-                Text(AppText.t("No messages", "暂无消息"))
-                    .font(.system(.body, design: .rounded))
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 260, alignment: .center)
-                    .multilineTextAlignment(.center)
+                ForEach(messages) { message in
+                    messageBubble(message)
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                }
             }
         }
     }
 
-    private var playButton: some View {
-        Button(action: speakResult) {
-            Label(AppText.t("Play", "播放"), systemImage: "speaker.wave.2.fill")
-                .fontWeight(.bold)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 13)
-                .background(Color.white.opacity(0.08))
-                .foregroundColor(.white)
-                .cornerRadius(14)
+    @ViewBuilder
+    private func messageBubble(_ message: ChatMessage) -> some View {
+        let isUser = message.role == .user
+
+        if isUser {
+            bubbleContent(message, isUser: true)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+        } else {
+            Button {
+                speak(message.text)
+            } label: {
+                bubbleContent(message, isUser: false)
+            }
+            .buttonStyle(.plain)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
-    private func messageBubble(title: String, text: String, isUser: Bool) -> some View {
-        VStack(alignment: isUser ? .trailing : .leading, spacing: 6) {
-            Text(title)
-                .font(.system(.caption, design: .rounded))
-                .foregroundColor(.secondary)
-            Text(text)
-                .font(.system(.title3, design: .rounded))
-                .fontWeight(.semibold)
+    private func bubbleContent(_ message: ChatMessage, isUser: Bool) -> some View {
+        VStack(alignment: isUser ? .trailing : .leading, spacing: 8) {
+            Text(message.text)
+                .font(.system(.body, design: .rounded))
+                .fontWeight(isUser ? .medium : .semibold)
                 .foregroundColor(isUser ? .black : .white)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(13)
-                .background(isUser ? Color.cyan : Color.white.opacity(0.08))
-                .cornerRadius(16)
-        }
-        .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
-    }
 
-    private func resultBlock(title: String, text: String, prominent: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(.caption, design: .rounded))
-                .foregroundColor(.secondary)
-            Text(text)
-                .font(.system(prominent ? .title3 : .body, design: .rounded))
-                .fontWeight(prominent ? .bold : .regular)
-                .foregroundColor(prominent ? .white : .cyan.opacity(0.9))
-                .fixedSize(horizontal: false, vertical: true)
+            if let pronunciation = message.pronunciation, !pronunciation.isEmpty {
+                Text(pronunciation)
+                    .font(.system(.callout, design: .rounded))
+                    .foregroundColor(.cyan.opacity(0.92))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if let note = message.note, !note.isEmpty {
+                Text(note)
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if message.role == .assistant {
+                HStack {
+                    Image(systemName: "speaker.wave.2.fill")
+                        .font(.system(size: 11, weight: .semibold))
+                }
+                .font(.system(.caption2, design: .rounded))
+                .foregroundColor(.secondary.opacity(0.9))
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(12)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
+        .background(isUser ? Color.cyan.opacity(0.92) : Color.white.opacity(0.08))
+        .cornerRadius(16)
     }
 
     private var canTranslate: Bool {
@@ -305,19 +274,31 @@ public struct ChatView: View {
 
     private func translate() {
         dictationManager.stop()
+        let textToTranslate = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !textToTranslate.isEmpty else { return }
+
         isInputFocused = false
+        inputText = ""
         statusText = nil
         isTranslating = true
+        messages.append(ChatMessage(role: .user, text: textToTranslate))
 
         Task {
             do {
                 let chatService = DialectChatService(model: settings.aiModel.modelIdentifier)
                 let translated = try await chatService.translateMandarin(
-                    inputText,
+                    textToTranslate,
                     to: settings.chatTargetDialect
                 )
                 await MainActor.run {
-                    result = translated
+                    messages.append(
+                        ChatMessage(
+                            role: .assistant,
+                            text: translated.dialectText,
+                            pronunciation: translated.pronunciation,
+                            note: translated.usageNote
+                        )
+                    )
                     isTranslating = false
                 }
             } catch {
@@ -329,8 +310,7 @@ public struct ChatView: View {
         }
     }
 
-    private func speakResult() {
-        guard let result else { return }
+    private func speak(_ text: String) {
         speechSynthesizer.stopSpeaking(at: .immediate)
         do {
             let session = AVAudioSession.sharedInstance()
@@ -341,7 +321,7 @@ public struct ChatView: View {
             return
         }
 
-        let utterance = AVSpeechUtterance(string: result.dialectText)
+        let utterance = AVSpeechUtterance(string: text)
         guard let voice = AVSpeechSynthesisVoice(language: settings.chatTargetDialect.speechLocaleIdentifier) else {
             statusText = AppText.t("No compatible system voice found.", "没有找到可用的系统语音。")
             return
@@ -350,6 +330,19 @@ public struct ChatView: View {
         utterance.rate = 0.45
         speechSynthesizer.speak(utterance)
     }
+}
+
+private struct ChatMessage: Identifiable {
+    enum Role {
+        case user
+        case assistant
+    }
+
+    let id = UUID()
+    let role: Role
+    let text: String
+    var pronunciation: String?
+    var note: String?
 }
 
 #Preview {

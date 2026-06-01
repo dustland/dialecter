@@ -13,7 +13,7 @@ public final class DialectChatService {
     private let apiKey: String?
     private let model: String
 
-    public init(apiKey: String? = nil, model: String = "minimax/minimax-m2.7") {
+    public init(apiKey: String? = nil, model: String = "minimax/minimax-m3") {
         let configuredKey = apiKey
             ?? Bundle.main.object(forInfoDictionaryKey: "OpenRouterAPIKey") as? String
             ?? ProcessInfo.processInfo.environment["OPENROUTER_API_KEY"]

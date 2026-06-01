@@ -47,6 +47,7 @@ public struct MainTabView: View {
                 )
             }
             .padding(5)
+            .frame(maxWidth: .infinity)
             .background(Color.white.opacity(0.06))
             .overlay(
                 RoundedRectangle(cornerRadius: 15)
@@ -69,6 +70,7 @@ public struct MainTabView: View {
         .padding(.horizontal, 18)
         .padding(.top, 10)
         .padding(.bottom, 8)
+        .background(.ultraThinMaterial.opacity(0.18))
     }
 
     private func switcherButton(title: String, icon: String, section: Section) -> some View {

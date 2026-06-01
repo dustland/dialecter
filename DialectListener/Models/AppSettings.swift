@@ -144,7 +144,7 @@ public enum AIModelOption: String, CaseIterable, Identifiable {
 
     public var title: String {
         switch self {
-        case .minimax: "MiniMax M2.7"
+        case .minimax: "MiniMax M3"
         case .openAI: "OpenAI GPT-5.4 Mini"
         case .qwen: "Qwen3.6 Flash"
         case .zhipu: "Z.ai GLM-5.1"
@@ -162,7 +162,7 @@ public enum AIModelOption: String, CaseIterable, Identifiable {
 
     public var modelIdentifier: String {
         switch self {
-        case .minimax: "minimax/minimax-m2.7"
+        case .minimax: "minimax/minimax-m3"
         case .openAI: "openai/gpt-5.4-mini"
         case .qwen: "qwen/qwen3.6-flash"
         case .zhipu: "z-ai/glm-5.1"

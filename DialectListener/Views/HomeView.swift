@@ -16,89 +16,16 @@ public struct HomeView: View {
     public var body: some View {
         NavigationStack {
             ZStack {
-                // Premium deep dark background with gradient glow
                 Color.black.ignoresSafeArea()
                 
-                VStack(spacing: 18) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(AppText.t("Dialecter", "方言家"))
-                                .font(.system(.title2, design: .rounded))
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            
-                            Text("Dialecter")
-                                .font(.system(.footnote, design: .rounded))
-                                .foregroundColor(.secondary)
-                        }
-
-                        Spacer()
-
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill(sessionManager.isRecordingLocally ? Color.red.opacity(0.9) : Color.green.opacity(0.75))
-                                .frame(width: 7, height: 7)
-
-                            Text(sessionManager.isRecordingLocally ? AppText.t("Listening", "倾听中") : AppText.t("Ready", "就绪"))
-                                .font(.system(.caption, design: .monospaced))
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color.white.opacity(0.06))
-                        .clipShape(Capsule())
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 14)
-
+                VStack(spacing: 12) {
                     if sessionManager.isRecordingLocally {
                         inlineListeningPanel
                             .padding(.horizontal)
+                            .padding(.top, 8)
                     }
 
-                    HStack {
-                        Text(AppText.t("Recent Sessions", "最近记录"))
-                            .font(.system(.title3, design: .rounded))
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-
-                    if sessionManager.recentSessions.isEmpty {
-                        VStack(spacing: 12) {
-                            Image(systemName: "text.bubble.fill")
-                                .font(.system(size: 48))
-                                .foregroundColor(.white.opacity(0.15))
-                            
-                            Text(AppText.t("No sessions yet", "还没有记录"))
-                                .font(.system(.body, design: .rounded))
-                                .foregroundColor(.secondary)
-                        }
-                        .frame(maxHeight: .infinity)
-                    } else {
-                        List {
-                            ForEach(sessionManager.recentSessions) { session in
-                                Button(action: {
-                                    selectedSessionForDetail = session
-                                }) {
-                                    SessionCard(session: session)
-                                }
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-                                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                            }
-                            .onDelete { indexSet in
-                                for index in indexSet {
-                                    let session = sessionManager.recentSessions[index]
-                                    sessionManager.deleteSession(session)
-                                }
-                            }
-                        }
-                        .listStyle(PlainListStyle())
-                        .scrollContentBackground(.hidden)
-                    }
+                    sessionList
 
                     listenControlBar
                         .padding(.horizontal)
@@ -112,6 +39,63 @@ public struct HomeView: View {
                 SessionDetailView(session: session)
             }
         }
+    }
+
+    private var sessionList: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if !sessionManager.isRecordingLocally {
+                HStack {
+                    Text(AppText.t("Recent", "最近"))
+                        .font(.system(.headline, design: .rounded))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+
+                    Spacer()
+                }
+                .padding(.horizontal)
+            }
+
+            if sessionManager.recentSessions.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "text.bubble")
+                        .font(.system(size: 30))
+                        .foregroundColor(.white.opacity(0.14))
+
+                    Text(AppText.t("No sessions", "暂无记录"))
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List {
+                    ForEach(visibleSessions) { session in
+                        Button(action: {
+                            selectedSessionForDetail = session
+                        }) {
+                            SessionCard(session: session)
+                        }
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
+                    }
+                    .onDelete { indexSet in
+                        for index in indexSet {
+                            let session = sessionManager.recentSessions[index]
+                            sessionManager.deleteSession(session)
+                        }
+                    }
+                }
+                .listStyle(PlainListStyle())
+                .scrollContentBackground(.hidden)
+            }
+        }
+    }
+
+    private var visibleSessions: [Session] {
+        if sessionManager.isRecordingLocally {
+            return Array(sessionManager.recentSessions.prefix(3))
+        }
+        return sessionManager.recentSessions
     }
 
     private var listenControlBar: some View {
@@ -130,15 +114,16 @@ public struct HomeView: View {
                     .font(.system(.subheadline, design: .rounded))
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                Text("\(sessionManager.appSettings.sourceLanguage.title) · \(sessionManager.appSettings.listeningMode.title) · \(sessionManager.appSettings.micSensitivity.title)")
+                Text(sessionManager.isRecordingLocally ? sessionManager.liveTranslationStatus : "\(sessionManager.appSettings.sourceLanguage.title) · \(sessionManager.appSettings.listeningMode.title) · \(sessionManager.appSettings.micSensitivity.title)")
                     .font(.system(.caption, design: .rounded))
                     .foregroundColor(.secondary)
+                    .lineLimit(1)
             }
 
             Spacer()
         }
         .padding(12)
-        .background(Color.white.opacity(0.05))
+        .background(.thinMaterial.opacity(0.35))
         .overlay(
             RoundedRectangle(cornerRadius: 18)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
@@ -177,29 +162,34 @@ public struct HomeView: View {
                 }
             }
 
-            if let latestLine = sessionManager.liveTranscriptLines.last {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(latestLine.dialectText)
-                        .font(.system(.subheadline, design: .rounded))
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .lineLimit(2)
+            let visibleLines = Array(sessionManager.liveTranscriptLines.suffix(4))
+            if !visibleLines.isEmpty {
+                VStack(alignment: .leading, spacing: 11) {
+                    ForEach(visibleLines) { line in
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(line.dialectText)
+                                .font(.system(.body, design: .rounded))
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .lineLimit(3)
 
-                    if !latestLine.translationText.isEmpty {
-                        Text(latestLine.translationText)
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundColor(.cyan.opacity(0.85))
-                            .lineLimit(2)
+                            if !line.translationText.isEmpty {
+                                Text(line.translationText)
+                                    .font(.system(.callout, design: .rounded))
+                                    .foregroundColor(.cyan.opacity(0.85))
+                                    .lineLimit(3)
+                            }
+                        }
                     }
                 }
             } else {
-                Text(AppText.t("Live captions stay here while listening.", "倾听时，实时字幕会低调显示在这里。"))
+                Text(AppText.t("Listening...", "倾听中..."))
                     .font(.system(.caption, design: .rounded))
                     .foregroundColor(.secondary)
             }
         }
         .padding(12)
-        .background(Color.white.opacity(0.04))
+        .background(.thinMaterial.opacity(0.3))
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
