@@ -7,6 +7,7 @@ public struct ChatView: View {
     @State private var messages: [ChatMessage] = []
     @State private var isTranslating = false
     @State private var isPressingVoice = false
+    @State private var voiceStartTask: Task<Void, Never>?
     @FocusState private var isInputFocused: Bool
     @State private var statusText: String?
     @State private var dictationManager = MandarinDictationManager()
@@ -48,6 +49,8 @@ public struct ChatView: View {
             inputText = newValue
         }
         .onDisappear {
+            voiceStartTask?.cancel()
+            voiceStartTask = nil
             dictationManager.stop()
             isInputFocused = false
             speechSynthesizer.stopSpeaking(at: .immediate)
@@ -72,49 +75,34 @@ public struct ChatView: View {
 
     @ViewBuilder
     private var inputField: some View {
-        if isInputFocused || !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            TextEditor(text: $inputText)
-                .focused($isInputFocused)
-                .font(.system(.body, design: .rounded))
-                .foregroundColor(.white)
-                .scrollContentBackground(.hidden)
-                .frame(minHeight: 42, maxHeight: 104)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
-                .background(Color.white.opacity(0.05))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18)
-                        .stroke(isPressingVoice ? Color.cyan.opacity(0.6) : Color.white.opacity(0.08), lineWidth: 1)
-                )
-                .cornerRadius(18)
-                .overlay(alignment: .topLeading) {
-                    if inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        Text(isPressingVoice ? AppText.t("Release to send", "松开发送") : AppText.t("Type Mandarin", "输入普通话"))
-                            .font(.system(.body, design: .rounded))
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 16)
-                            .allowsHitTesting(false)
-                    }
+        TextEditor(text: $inputText)
+            .focused($isInputFocused)
+            .font(.system(.body, design: .rounded))
+            .foregroundColor(.white)
+            .scrollContentBackground(.hidden)
+            .frame(minHeight: 42, maxHeight: 104)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(Color.white.opacity(0.05))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(isPressingVoice ? Color.cyan.opacity(0.6) : Color.white.opacity(0.08), lineWidth: 1)
+            )
+            .cornerRadius(18)
+            .overlay(alignment: .topLeading) {
+                if inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text(isPressingVoice ? AppText.t("Release to send", "松开发送") : AppText.t("Type Mandarin", "输入普通话"))
+                        .font(.system(.body, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 16)
+                        .allowsHitTesting(false)
                 }
-        } else {
-            Button {
-                isInputFocused = true
-            } label: {
-                Text(AppText.t("Message", "输入"))
-                    .font(.system(.body, design: .rounded))
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 42, alignment: .leading)
-                    .padding(.horizontal, 14)
-                    .background(Color.white.opacity(0.05))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 18)
-                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                    )
-                    .cornerRadius(18)
             }
-            .buttonStyle(.plain)
-        }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                isInputFocused = true
+            }
     }
 
     @ViewBuilder
@@ -141,14 +129,17 @@ public struct ChatView: View {
                 .frame(width: 44, height: 44)
                 .background(isPressingVoice ? Color.cyan : Color.white.opacity(0.08))
                 .clipShape(Circle())
-                .gesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { _ in
-                            beginVoiceMessage()
-                        }
-                        .onEnded { _ in
+                .onLongPressGesture(
+                    minimumDuration: 0.18,
+                    maximumDistance: 44,
+                    pressing: { pressing in
+                        if pressing {
+                            scheduleVoiceMessageStart()
+                        } else {
                             finishVoiceMessage()
                         }
+                    },
+                    perform: {}
                 )
         }
     }
@@ -226,6 +217,19 @@ public struct ChatView: View {
         !isTranslating && !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    private func scheduleVoiceMessageStart() {
+        guard voiceStartTask == nil, !isPressingVoice, !dictationManager.isRecording else { return }
+
+        voiceStartTask = Task {
+            try? await Task.sleep(for: .milliseconds(180))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                beginVoiceMessage()
+                voiceStartTask = nil
+            }
+        }
+    }
+
     private func beginVoiceMessage() {
         guard !isPressingVoice, !dictationManager.isRecording else { return }
         isInputFocused = false
@@ -255,6 +259,8 @@ public struct ChatView: View {
     }
 
     private func finishVoiceMessage() {
+        voiceStartTask?.cancel()
+        voiceStartTask = nil
         guard isPressingVoice else { return }
         isPressingVoice = false
         dictationManager.stop()
