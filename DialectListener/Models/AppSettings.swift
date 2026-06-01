@@ -118,6 +118,42 @@ public enum ChatTargetDialect: String, CaseIterable, Identifiable {
     }
 }
 
+public enum AIModelOption: String, CaseIterable, Identifiable {
+    case minimax
+    case openAI
+    case qwen
+    case zhipu
+
+    public var id: String { rawValue }
+
+    public var title: String {
+        switch self {
+        case .minimax: "MiniMax M2.7"
+        case .openAI: "OpenAI GPT-5.4 Mini"
+        case .qwen: "Qwen3.6 Flash"
+        case .zhipu: "Z.ai GLM-5.1"
+        }
+    }
+
+    public var subtitle: String {
+        switch self {
+        case .minimax: AppText.t("Default for Chinese dialect practice", "默认用于中文方言练习")
+        case .openAI: AppText.t("OpenAI fallback model", "OpenAI 备选模型")
+        case .qwen: AppText.t("Alibaba Qwen option", "阿里通义千问模型")
+        case .zhipu: AppText.t("Zhipu/Z.ai GLM option", "智谱/Z.ai GLM 模型")
+        }
+    }
+
+    public var modelIdentifier: String {
+        switch self {
+        case .minimax: "minimax/minimax-m2.7"
+        case .openAI: "openai/gpt-5.4-mini"
+        case .qwen: "qwen/qwen3.6-flash"
+        case .zhipu: "z-ai/glm-5.1"
+        }
+    }
+}
+
 @Observable
 public final class AppSettings {
     private enum Key {
@@ -126,6 +162,7 @@ public final class AppSettings {
         static let sourceLanguage = "settings.sourceLanguage"
         static let translationTarget = "settings.translationTarget"
         static let chatTargetDialect = "settings.chatTargetDialect"
+        static let aiModel = "settings.aiModel"
         static let liveTranscriptEnabled = "settings.liveTranscriptEnabled"
         static let liveTranslationEnabled = "settings.liveTranslationEnabled"
         static let keepScreenAwake = "settings.keepScreenAwake"
@@ -146,6 +183,9 @@ public final class AppSettings {
     public var chatTargetDialect: ChatTargetDialect {
         didSet { defaults.set(chatTargetDialect.rawValue, forKey: Key.chatTargetDialect) }
     }
+    public var aiModel: AIModelOption {
+        didSet { defaults.set(aiModel.rawValue, forKey: Key.aiModel) }
+    }
     public var liveTranscriptEnabled: Bool {
         didSet { defaults.set(liveTranscriptEnabled, forKey: Key.liveTranscriptEnabled) }
     }
@@ -165,6 +205,7 @@ public final class AppSettings {
         self.sourceLanguage = SourceLanguage(rawValue: defaults.string(forKey: Key.sourceLanguage) ?? "") ?? .cantonese
         self.translationTarget = TranslationTarget(rawValue: defaults.string(forKey: Key.translationTarget) ?? "") ?? .simplifiedChinese
         self.chatTargetDialect = ChatTargetDialect(rawValue: defaults.string(forKey: Key.chatTargetDialect) ?? "") ?? .cantonese
+        self.aiModel = AIModelOption(rawValue: defaults.string(forKey: Key.aiModel) ?? "") ?? .minimax
         self.liveTranscriptEnabled = defaults.object(forKey: Key.liveTranscriptEnabled) as? Bool ?? true
         self.liveTranslationEnabled = defaults.object(forKey: Key.liveTranslationEnabled) as? Bool ?? true
         self.keepScreenAwake = defaults.object(forKey: Key.keepScreenAwake) as? Bool ?? true

@@ -20,7 +20,7 @@ Add these repository secrets:
 Optional repository variables:
 
 - `APP_BUNDLE_ID`: defaults to `com.dustland.DialectListener`.
-- `MARKETING_VERSION`: defaults to `1.0.3`.
+- `MARKETING_VERSION`: defaults to `1.0.4`.
 
 ## Build
 

@@ -20,7 +20,7 @@ public final class OpenRouterTranslationService: TranslationServiceProtocol {
     private let apiKey: String?
     private let model: String
     
-    public init(apiKey: String? = nil, model: String = "openai/gpt-4o-mini") {
+    public init(apiKey: String? = nil, model: String = "minimax/minimax-m2.7") {
         let configuredKey = apiKey
             ?? Bundle.main.object(forInfoDictionaryKey: "OpenRouterAPIKey") as? String
             ?? ProcessInfo.processInfo.environment["OPENROUTER_API_KEY"]
@@ -207,8 +207,8 @@ public final class SmartTranslationService: TranslationServiceProtocol {
     private let remoteService: OpenRouterTranslationService
     private let localService: LocalRuleTranslationService
     
-    public init(openRouterApiKey: String? = nil) {
-        self.remoteService = OpenRouterTranslationService(apiKey: openRouterApiKey)
+    public init(openRouterApiKey: String? = nil, model: String = "minimax/minimax-m2.7") {
+        self.remoteService = OpenRouterTranslationService(apiKey: openRouterApiKey, model: model)
         self.localService = LocalRuleTranslationService()
     }
     

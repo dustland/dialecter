@@ -43,6 +43,20 @@ public struct SettingsView: View {
                     }
                 }
 
+                Section(AppText.t("AI Model", "AI 模型")) {
+                    Picker(AppText.t("Provider", "模型服务"), selection: $settings.aiModel) {
+                        ForEach(AIModelOption.allCases) { model in
+                            VStack(alignment: .leading) {
+                                Text(model.title)
+                                Text(model.subtitle)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .tag(model)
+                        }
+                    }
+                }
+
                 Section(AppText.t("Live Recognition", "实时识别")) {
                     Toggle(AppText.t("Live Transcript", "实时字幕"), isOn: $settings.liveTranscriptEnabled)
                     Toggle(AppText.t("Live Translation", "实时翻译"), isOn: $settings.liveTranslationEnabled)

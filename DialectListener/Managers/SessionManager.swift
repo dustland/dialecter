@@ -15,7 +15,7 @@ public final class SessionManager {
     public let connectivityManager: WatchConnectivityManager
     public let recorderManager: AudioRecorderManager
     public let asrService: ASRServiceProtocol
-    public let translationService: TranslationServiceProtocol
+    public var translationService: TranslationServiceProtocol
     public let appSettings: AppSettings
     
     // SwiftData Context Holder
@@ -41,11 +41,12 @@ public final class SessionManager {
         translationService: TranslationServiceProtocol? = nil,
         appSettings: AppSettings? = nil
     ) {
+        let resolvedSettings = appSettings ?? AppSettings()
         self.connectivityManager = connectivityManager ?? WatchConnectivityManager()
         self.recorderManager = recorderManager ?? AudioRecorderManager()
         self.asrService = asrService ?? AppleASRService()
-        self.translationService = translationService ?? SmartTranslationService()
-        self.appSettings = appSettings ?? AppSettings()
+        self.translationService = translationService ?? SmartTranslationService(model: resolvedSettings.aiModel.modelIdentifier)
+        self.appSettings = resolvedSettings
         
         setupConnectivityCallbacks()
         checkPermissions()
@@ -86,6 +87,7 @@ public final class SessionManager {
             liveTranslationStatus = AppText.t("Listening...", "倾听中...")
             lastTranslatedSnapshot = ""
 
+            translationService = SmartTranslationService(model: appSettings.aiModel.modelIdentifier)
             asrService.setLocaleIdentifier(appSettings.sourceLanguage.localeIdentifier)
             try asrService.startLiveTranscription { [weak self] result in
                 Task { @MainActor in

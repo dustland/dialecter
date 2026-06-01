@@ -10,85 +10,103 @@ public struct ChatView: View {
     @State private var dictationManager = MandarinDictationManager()
     @State private var speechSynthesizer = AVSpeechSynthesizer()
 
-    private let chatService = DialectChatService()
-
     public init(settings: AppSettings) {
         self.settings = settings
     }
 
     public var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.black.ignoresSafeArea()
-                RadialGradient(
-                    gradient: Gradient(colors: [Color.green.opacity(0.08), Color.black]),
-                    center: .topTrailing,
-                    startRadius: 2,
-                    endRadius: 520
-                )
-                .ignoresSafeArea()
+        ZStack {
+            Color.black.ignoresSafeArea()
+            RadialGradient(
+                gradient: Gradient(colors: [Color.green.opacity(0.08), Color.black]),
+                center: .topTrailing,
+                startRadius: 2,
+                endRadius: 520
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                header
+                    .padding(.horizontal, 18)
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
-                        header
-                        inputPanel
-                        resultPanel
-                    }
-                    .padding(18)
+                    resultPanel
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity, alignment: .top)
                 }
+
+                inputPanel
+                    .padding(.horizontal, 14)
+                    .padding(.top, 8)
+                    .padding(.bottom, 12)
+                    .background(.black.opacity(0.72))
             }
-            .navigationTitle(AppText.t("Chat", "畅聊"))
-            .navigationBarTitleDisplayMode(.inline)
-            .onChange(of: dictationManager.transcript) { _, newValue in
-                guard dictationManager.isRecording else { return }
-                inputText = newValue
-            }
-            .onDisappear {
-                dictationManager.stop()
-                speechSynthesizer.stopSpeaking(at: .immediate)
-            }
+        }
+        .onChange(of: dictationManager.transcript) { _, newValue in
+            guard dictationManager.isRecording else { return }
+            inputText = newValue
+        }
+        .onDisappear {
+            dictationManager.stop()
+            speechSynthesizer.stopSpeaking(at: .immediate)
         }
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(AppText.t("Practice a phrase", "练一句"))
-                .font(.system(.title2, design: .rounded))
-                .fontWeight(.bold)
-                .foregroundColor(.white)
+        HStack {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(AppText.t("Chat", "畅聊"))
+                    .font(.system(.title3, design: .rounded))
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
 
-            HStack(spacing: 8) {
-                Label(AppText.t("Mandarin input", "普通话输入"), systemImage: "text.quote")
-                Text("->")
-                    .foregroundColor(.secondary)
-                Label(settings.chatTargetDialect.title, systemImage: "bubble.left.and.bubble.right.fill")
+                HStack(spacing: 8) {
+                    Label(AppText.t("Mandarin", "普通话"), systemImage: "text.quote")
+                    Text("->")
+                        .foregroundColor(.secondary)
+                    Label(settings.chatTargetDialect.title, systemImage: "bubble.left.and.bubble.right.fill")
+                }
+                .font(.system(.caption, design: .rounded))
+                .foregroundColor(.secondary)
             }
-            .font(.system(.caption, design: .rounded))
-            .foregroundColor(.secondary)
+
+            Spacer()
+
+            Text(settings.aiModel.title)
+                .font(.system(.caption, design: .rounded))
+                .fontWeight(.bold)
+                .foregroundColor(.cyan)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Color.white.opacity(0.06))
+                .clipShape(Capsule())
         }
     }
 
     private var inputPanel: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 8) {
             TextEditor(text: $inputText)
                 .font(.system(.body, design: .rounded))
                 .foregroundColor(.white)
                 .scrollContentBackground(.hidden)
-                .frame(minHeight: 130)
-                .padding(12)
+                .frame(minHeight: 54, maxHeight: 110)
+                .padding(10)
                 .background(Color.white.opacity(0.05))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 14)
+                    RoundedRectangle(cornerRadius: 16)
                         .stroke(Color.white.opacity(0.08), lineWidth: 1)
                 )
-                .cornerRadius(14)
+                .cornerRadius(16)
                 .overlay(alignment: .topLeading) {
                     if inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         Text(AppText.t("Type Mandarin here, or tap the mic.", "输入普通话，或点麦克风说一句。"))
                             .font(.system(.body, design: .rounded))
                             .foregroundColor(.secondary)
-                            .padding(.horizontal, 18)
-                            .padding(.vertical, 20)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 18)
                             .allowsHitTesting(false)
                     }
                 }
@@ -117,11 +135,11 @@ public struct ChatView: View {
                         } else {
                             Image(systemName: "arrow.right.circle.fill")
                         }
-                        Text(AppText.t("Translate", "转换"))
+                        Text(AppText.t("Send", "发送"))
                             .fontWeight(.bold)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 13)
+                    .padding(.vertical, 12)
                     .background(canTranslate ? Color.cyan : Color.white.opacity(0.08))
                     .foregroundColor(canTranslate ? .black : .secondary)
                     .cornerRadius(14)
@@ -129,49 +147,54 @@ public struct ChatView: View {
                 .disabled(!canTranslate)
             }
         }
-        .padding(14)
-        .background(Color.white.opacity(0.04))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
-        .cornerRadius(18)
     }
 
     private var resultPanel: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text(AppText.t("Result", "结果"))
-                .font(.system(.headline, design: .rounded))
-                .foregroundColor(.white)
-
+        VStack(alignment: .leading, spacing: 12) {
             if let result {
-                resultBlock(title: settings.chatTargetDialect.title, text: result.dialectText, prominent: true)
+                messageBubble(title: AppText.t("You", "你"), text: result.mandarinText, isUser: true)
+                messageBubble(title: settings.chatTargetDialect.title, text: result.dialectText, isUser: false)
                 resultBlock(title: AppText.t("Pronunciation", "发音"), text: result.pronunciation, prominent: false)
                 resultBlock(title: AppText.t("Note", "提示"), text: result.usageNote, prominent: false)
 
-                Button(action: speakResult) {
-                    Label(AppText.t("Play", "播放"), systemImage: "speaker.wave.2.fill")
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 13)
-                        .background(Color.white.opacity(0.08))
-                        .foregroundColor(.white)
-                        .cornerRadius(14)
-                }
+                playButton
             } else {
-                Text(AppText.t("Converted text and pronunciation will appear here.", "转换后的文字和发音会显示在这里。"))
+                Text(AppText.t("Send a Mandarin phrase to get a dialect version and pronunciation.", "发送一句普通话，获取方言说法和发音。"))
                     .font(.system(.body, design: .rounded))
                     .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, minHeight: 120, alignment: .center)
+                    .frame(maxWidth: .infinity, minHeight: 260, alignment: .center)
+                    .multilineTextAlignment(.center)
             }
         }
-        .padding(16)
-        .background(Color.white.opacity(0.04))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
-        .cornerRadius(18)
+    }
+
+    private var playButton: some View {
+        Button(action: speakResult) {
+            Label(AppText.t("Play", "播放"), systemImage: "speaker.wave.2.fill")
+                .fontWeight(.bold)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 13)
+                .background(Color.white.opacity(0.08))
+                .foregroundColor(.white)
+                .cornerRadius(14)
+        }
+    }
+
+    private func messageBubble(title: String, text: String, isUser: Bool) -> some View {
+        VStack(alignment: isUser ? .trailing : .leading, spacing: 6) {
+            Text(title)
+                .font(.system(.caption, design: .rounded))
+                .foregroundColor(.secondary)
+            Text(text)
+                .font(.system(.title3, design: .rounded))
+                .fontWeight(.semibold)
+                .foregroundColor(isUser ? .black : .white)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(13)
+                .background(isUser ? Color.cyan : Color.white.opacity(0.08))
+                .cornerRadius(16)
+        }
+        .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
     }
 
     private func resultBlock(title: String, text: String, prominent: Bool) -> some View {
@@ -226,6 +249,7 @@ public struct ChatView: View {
 
         Task {
             do {
+                let chatService = DialectChatService(model: settings.aiModel.modelIdentifier)
                 let translated = try await chatService.translateMandarin(
                     inputText,
                     to: settings.chatTargetDialect
