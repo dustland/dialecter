@@ -64,6 +64,11 @@ public struct HomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
 
+                    if sessionManager.isRecordingLocally {
+                        inlineListeningPanel
+                            .padding(.horizontal)
+                    }
+
                     HStack {
                         Text(AppText.t("Recent Sessions", "最近记录"))
                             .font(.system(.title3, design: .rounded))
@@ -122,9 +127,6 @@ public struct HomeView: View {
             .onAppear {
                 sessionManager.setModelContext(modelContext)
             }
-            .fullScreenCover(isPresented: $sessionManager.isRecordingLocally) {
-                RecordingHUDView(sessionManager: sessionManager)
-            }
             .sheet(item: $selectedSessionForDetail) { session in
                 SessionDetailView(session: session)
             }
@@ -163,12 +165,79 @@ public struct HomeView: View {
         .cornerRadius(18)
     }
 
+    private var inlineListeningPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Circle()
+                    .fill(Color.cyan.opacity(0.85))
+                    .frame(width: 8, height: 8)
+
+                Text(formatDuration(sessionManager.recorderManager.currentDuration))
+                    .font(.system(.caption, design: .monospaced))
+                    .fontWeight(.bold)
+                    .foregroundColor(.cyan)
+
+                Text(sessionManager.liveTranslationStatus)
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+
+                Spacer()
+
+                Button(action: {
+                    sessionManager.addBookmark(at: sessionManager.recorderManager.currentDuration)
+                }) {
+                    Image(systemName: "bookmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.secondary)
+                        .frame(width: 30, height: 30)
+                        .background(Color.white.opacity(0.06))
+                        .clipShape(Circle())
+                }
+            }
+
+            if let latestLine = sessionManager.liveTranscriptLines.last {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(latestLine.dialectText)
+                        .font(.system(.subheadline, design: .rounded))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .lineLimit(2)
+
+                    if !latestLine.translationText.isEmpty {
+                        Text(latestLine.translationText)
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundColor(.cyan.opacity(0.85))
+                            .lineLimit(2)
+                    }
+                }
+            } else {
+                Text(AppText.t("Live captions stay here while listening.", "倾听时，实时字幕会低调显示在这里。"))
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(12)
+        .background(Color.white.opacity(0.04))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+        .cornerRadius(16)
+    }
+
     private func toggleListening() {
         if sessionManager.isRecordingLocally {
             sessionManager.stopSession()
         } else {
             sessionManager.startSession()
         }
+    }
+
+    private func formatDuration(_ timeInterval: TimeInterval) -> String {
+        let minutes = Int(timeInterval) / 60
+        let seconds = Int(timeInterval) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
     }
 }
 
