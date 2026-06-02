@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import AVFoundation
+import UIKit
 
 public struct MainTabView: View {
     @State private var settings = AppSettings()
@@ -45,6 +46,9 @@ private struct AgentView: View {
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
+                .onTapGesture {
+                    dismissTextInput()
+                }
 
             VStack(spacing: 0) {
                 header
@@ -127,6 +131,11 @@ private struct AgentView: View {
                 .padding(.top, 12)
                 .padding(.bottom, 18)
             }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                dismissTextInput()
+            }
+            .scrollDismissesKeyboard(.interactively)
             .onChange(of: messages.count) { _, _ in
                 guard let lastMessage = messages.last else { return }
                 withAnimation(.easeOut(duration: 0.22)) {
@@ -265,14 +274,18 @@ private struct AgentView: View {
     @ViewBuilder
     private var composerField: some View {
         ZStack(alignment: .topLeading) {
-            TextEditor(text: $inputText)
+            TextField("", text: $inputText, axis: .vertical)
                 .focused($isInputFocused)
                 .font(.system(.body, design: .rounded))
                 .foregroundColor(.white)
-                .scrollContentBackground(.hidden)
-                .frame(minHeight: 42, maxHeight: 98)
+                .lineLimit(1...3)
+                .submitLabel(.send)
+                .onSubmit {
+                    sendCurrentInput()
+                }
+                .frame(minHeight: 24)
                 .padding(.horizontal, 10)
-                .padding(.vertical, 8)
+                .padding(.vertical, 9)
                 .background(Color.white.opacity(0.06))
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
@@ -412,6 +425,12 @@ private struct AgentView: View {
         DispatchQueue.main.async {
             isInputFocused = true
         }
+    }
+
+    private func dismissTextInput() {
+        guard isInputFocused else { return }
+        isInputFocused = false
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
     private func toggleAmbientListening() {
