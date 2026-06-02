@@ -8,6 +8,18 @@ public struct SettingsView: View {
         NavigationStack {
             Form {
                 Section(AppText.t("Listening", "倾听")) {
+                    Picker(AppText.t("ASR Provider", "语音识别服务"), selection: $settings.asrProvider) {
+                        ForEach(ASRProvider.allCases) { provider in
+                            VStack(alignment: .leading) {
+                                Text(provider.title)
+                                Text(provider.subtitle)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .tag(provider)
+                        }
+                    }
+
                     Picker(AppText.t("Target Dialect", "识别目标语言"), selection: $settings.sourceLanguage) {
                         ForEach(SourceLanguage.allCases) { language in
                             Text(language.title).tag(language)

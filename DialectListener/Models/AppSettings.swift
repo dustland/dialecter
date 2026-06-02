@@ -40,6 +40,33 @@ public enum MicSensitivity: String, CaseIterable, Identifiable {
     }
 }
 
+public enum ASRProvider: String, CaseIterable, Identifiable {
+    case doubao
+    case aliyun
+    case appleFallback
+
+    public var id: String { rawValue }
+
+    public var title: String {
+        switch self {
+        case .doubao: "Doubao ASR"
+        case .aliyun: "Aliyun ASR"
+        case .appleFallback: AppText.t("Apple Fallback", "Apple 兜底")
+        }
+    }
+
+    public var subtitle: String {
+        switch self {
+        case .doubao:
+            AppText.t("Primary far-field listening provider", "主要远场倾听识别服务")
+        case .aliyun:
+            AppText.t("Reserved provider for comparison", "预留用于效果对比")
+        case .appleFallback:
+            AppText.t("Local fallback only; lower far-field quality", "仅本地兜底，远场效果较弱")
+        }
+    }
+}
+
 public enum SourceLanguage: String, CaseIterable, Identifiable {
     case cantonese
     case mandarin
@@ -175,6 +202,7 @@ public final class AppSettings {
     private enum Key {
         static let listeningMode = "settings.listeningMode"
         static let micSensitivity = "settings.micSensitivity"
+        static let asrProvider = "settings.asrProvider"
         static let sourceLanguage = "settings.sourceLanguage"
         static let translationTarget = "settings.translationTarget"
         static let chatTargetDialect = "settings.chatTargetDialect"
@@ -189,6 +217,9 @@ public final class AppSettings {
     }
     public var micSensitivity: MicSensitivity {
         didSet { defaults.set(micSensitivity.rawValue, forKey: Key.micSensitivity) }
+    }
+    public var asrProvider: ASRProvider {
+        didSet { defaults.set(asrProvider.rawValue, forKey: Key.asrProvider) }
     }
     public var sourceLanguage: SourceLanguage {
         didSet { defaults.set(sourceLanguage.rawValue, forKey: Key.sourceLanguage) }
@@ -218,6 +249,7 @@ public final class AppSettings {
         self.defaults = defaults
         self.listeningMode = ListeningMode(rawValue: defaults.string(forKey: Key.listeningMode) ?? "") ?? .meeting
         self.micSensitivity = MicSensitivity(rawValue: defaults.string(forKey: Key.micSensitivity) ?? "") ?? .high
+        self.asrProvider = ASRProvider(rawValue: defaults.string(forKey: Key.asrProvider) ?? "") ?? .doubao
         self.sourceLanguage = SourceLanguage(rawValue: defaults.string(forKey: Key.sourceLanguage) ?? "") ?? .cantonese
         self.translationTarget = TranslationTarget(rawValue: defaults.string(forKey: Key.translationTarget) ?? "") ?? .simplifiedChinese
         self.chatTargetDialect = ChatTargetDialect(rawValue: defaults.string(forKey: Key.chatTargetDialect) ?? "") ?? .cantonese
