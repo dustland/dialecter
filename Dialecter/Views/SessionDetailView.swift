@@ -281,7 +281,7 @@ public struct SessionDetailView: View {
             player.prepareToPlay()
             self.audioPlayer = player
         } catch {
-            Logger(subsystem: "com.dustland.DialectListener", category: "DetailPlayback").error("Failed to load session audio: \(error.localizedDescription)")
+            Logger(subsystem: "com.dustland.Dialecter", category: "DetailPlayback").error("Failed to load session audio: \(error.localizedDescription)")
         }
     }
     

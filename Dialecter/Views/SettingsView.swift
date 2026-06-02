@@ -8,8 +8,8 @@ public struct SettingsView: View {
         NavigationStack {
             Form {
                 Section(AppText.t("Listening", "倾听")) {
-                    Picker(AppText.t("ASR Provider", "语音识别服务"), selection: $settings.asrProvider) {
-                        ForEach(ASRProvider.allCases) { provider in
+                    Picker(AppText.t("Engine", "引擎"), selection: $settings.intelligenceEngine) {
+                        ForEach(IntelligenceEngine.allCases) { provider in
                             VStack(alignment: .leading) {
                                 Text(provider.title)
                                 Text(provider.subtitle)
@@ -53,20 +53,6 @@ public struct SettingsView: View {
                     Picker(AppText.t("Chat Target", "畅聊目标"), selection: $settings.chatTargetDialect) {
                         ForEach(ChatTargetDialect.allCases) { dialect in
                             Text(dialect.title).tag(dialect)
-                        }
-                    }
-                }
-
-                Section(AppText.t("AI Model", "AI 模型")) {
-                    Picker(AppText.t("Provider", "模型服务"), selection: $settings.aiModel) {
-                        ForEach(AIModelOption.allCases) { model in
-                            VStack(alignment: .leading) {
-                                Text(model.title)
-                                Text(model.subtitle)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .tag(model)
                         }
                     }
                 }

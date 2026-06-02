@@ -16,7 +16,7 @@ public extension TranslationServiceProtocol {
 /// Understands slang, particles, English code-switching, and cultural context.
 public final class OpenRouterTranslationService: TranslationServiceProtocol {
     
-    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "OpenRouterTranslationService")
+    private let logger = Logger(subsystem: "com.dustland.Dialecter", category: "OpenRouterTranslationService")
     private let apiKey: String?
     private let model: String
     
@@ -134,7 +134,7 @@ public final class OpenRouterTranslationService: TranslationServiceProtocol {
 /// Translates common colloquial dialect pronouns, auxiliary verbs, and particles into standard Mandarin Chinese.
 public final class LocalRuleTranslationService: TranslationServiceProtocol {
     
-    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "LocalRuleTranslationService")
+    private let logger = Logger(subsystem: "com.dustland.Dialecter", category: "LocalRuleTranslationService")
     
     // Core mapping dictionary
     private let dict: [String: String] = [
@@ -209,7 +209,7 @@ public final class LocalRuleTranslationService: TranslationServiceProtocol {
 /// Composite service which attempts OpenRouter if configured and falls back to LocalRule translation.
 public final class SmartTranslationService: TranslationServiceProtocol {
     
-    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "SmartTranslationService")
+    private let logger = Logger(subsystem: "com.dustland.Dialecter", category: "SmartTranslationService")
     private let remoteService: OpenRouterTranslationService
     private let localService: LocalRuleTranslationService
     

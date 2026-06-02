@@ -5,10 +5,11 @@ import OSLog
 
 @Observable
 public final class MandarinDictationManager {
-    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "MandarinDictationManager")
+    private let logger = Logger(subsystem: "com.dustland.Dialecter", category: "MandarinDictationManager")
     private var audioEngine: AVAudioEngine?
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
+    private var isFinishing = false
 
     public var isRecording = false
     public var transcript = ""
@@ -32,7 +33,9 @@ public final class MandarinDictationManager {
     }
 
     public func start() throws {
-        stop()
+        stop(cancelRecognition: true)
+        transcript = ""
+        isFinishing = false
 
         guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh-CN")), recognizer.isAvailable else {
             throw NSError(domain: "MandarinDictationManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Mandarin speech recognition is unavailable."])
@@ -45,9 +48,8 @@ public final class MandarinDictationManager {
         let engine = AVAudioEngine()
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
-        if recognizer.supportsOnDeviceRecognition {
-            request.requiresOnDeviceRecognition = true
-        }
+        request.taskHint = .dictation
+        request.addsPunctuation = true
 
         let inputNode = engine.inputNode
         let format = inputNode.outputFormat(forBus: 0)
@@ -59,13 +61,16 @@ public final class MandarinDictationManager {
             if let result {
                 Task { @MainActor in
                     self?.transcript = result.bestTranscription.formattedString
+                    if result.isFinal {
+                        self?.cleanupAfterRecognition()
+                    }
                 }
             }
 
             if let error {
                 self?.logger.error("Mandarin dictation failed: \(error.localizedDescription)")
                 Task { @MainActor in
-                    self?.stop()
+                    self?.stop(cancelRecognition: true)
                 }
             }
         }
@@ -78,15 +83,43 @@ public final class MandarinDictationManager {
         isRecording = true
     }
 
-    public func stop() {
+    public func finish() {
+        guard isRecording || recognitionRequest != nil else { return }
+        isFinishing = true
         audioEngine?.inputNode.removeTap(onBus: 0)
         audioEngine?.stop()
         recognitionRequest?.endAudio()
-        recognitionTask?.cancel()
+        recognitionTask?.finish()
+        audioEngine = nil
+        recognitionRequest = nil
+        isRecording = false
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    public func stop() {
+        stop(cancelRecognition: true)
+    }
+
+    private func stop(cancelRecognition: Bool) {
+        audioEngine?.inputNode.removeTap(onBus: 0)
+        audioEngine?.stop()
+        recognitionRequest?.endAudio()
+        if cancelRecognition {
+            recognitionTask?.cancel()
+        } else {
+            recognitionTask?.finish()
+        }
         recognitionTask = nil
         recognitionRequest = nil
         audioEngine = nil
+        isFinishing = false
         isRecording = false
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    private func cleanupAfterRecognition() {
+        guard isFinishing else { return }
+        recognitionTask = nil
+        isFinishing = false
     }
 }

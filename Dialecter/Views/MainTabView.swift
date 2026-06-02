@@ -32,6 +32,8 @@ private struct AgentView: View {
     @State private var inputText = ""
     @State private var isSending = false
     @State private var isVoiceRecording = false
+    @State private var isPressingComposer = false
+    @State private var voiceStartTask: Task<Void, Never>?
     @State private var statusText: String?
     @State private var dictationManager = MandarinDictationManager()
     @State private var speechSynthesizer = AVSpeechSynthesizer()
@@ -78,7 +80,12 @@ private struct AgentView: View {
         .onChange(of: sessionManager.liveTranscriptLines.map(\.translationText).joined(separator: "\n")) { _, _ in
             syncAmbientMessages()
         }
+        .onChange(of: sessionManager.liveTranslationStatus) { _, _ in
+            syncAmbientMessages()
+        }
         .onDisappear {
+            voiceStartTask?.cancel()
+            voiceStartTask = nil
             dictationManager.stop()
             speechSynthesizer.stopSpeaking(at: .immediate)
         }
@@ -217,10 +224,23 @@ private struct AgentView: View {
             }
 
             if let noteText = message.noteText, !noteText.isEmpty {
-                Text(noteText)
+                if message.isProcessing {
+                    HStack(spacing: 7) {
+                        ProgressView()
+                            .controlSize(.mini)
+                            .tint(.mint)
+
+                        Text(noteText)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                     .font(.system(.caption, design: .rounded))
                     .foregroundColor(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    Text(noteText)
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             if message.kind == .agent {
@@ -244,22 +264,9 @@ private struct AgentView: View {
     private var composer: some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(spacing: 8) {
+                ambientButton
                 composerField
-
-                if canSend {
-                    Button(action: sendCurrentInput) {
-                        Image(systemName: "arrow.up")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.black)
-                            .frame(width: 40, height: 40)
-                            .background(Color.mint)
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(isSending)
-                } else {
-                    ambientButton
-                }
+                sendButton
             }
 
             if let statusText {
@@ -273,7 +280,7 @@ private struct AgentView: View {
 
     @ViewBuilder
     private var composerField: some View {
-        ZStack(alignment: .topLeading) {
+        ZStack(alignment: .leading) {
             TextField("", text: $inputText, axis: .vertical)
                 .focused($isInputFocused)
                 .font(.system(.body, design: .rounded))
@@ -283,43 +290,33 @@ private struct AgentView: View {
                 .onSubmit {
                     sendCurrentInput()
                 }
-                .frame(minHeight: 24)
                 .padding(.horizontal, 10)
-                .padding(.vertical, 9)
-                .background(Color.white.opacity(0.06))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(isVoiceRecording ? Color.mint.opacity(0.6) : Color.white.opacity(0.08), lineWidth: 1)
-                )
-                .cornerRadius(20)
+                .frame(minHeight: 42, alignment: .center)
 
             if inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Text(isVoiceRecording ? AppText.t("Release to send", "松开发送") : AppText.t("Hold to speak, tap to type", "按住说话，点按输入"))
-                    .font(.system(.body, design: .rounded))
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white.opacity(0.72))
+                    .font(.system(.callout, design: .rounded))
+                    .fontWeight(.regular)
+                    .foregroundColor(.white.opacity(0.44))
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 16)
                     .allowsHitTesting(false)
             }
         }
+        .frame(minHeight: 42, alignment: .center)
+        .background(Color.white.opacity(0.06))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(isVoiceRecording ? Color.mint.opacity(0.6) : Color.white.opacity(0.08), lineWidth: 1)
+        )
+        .cornerRadius(20)
         .contentShape(RoundedRectangle(cornerRadius: 20))
-        .simultaneousGesture(
-            TapGesture()
-                .onEnded {
-                    startTextInput()
-                }
-        )
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.18, maximumDistance: 44)
-                .onEnded { _ in
-                    beginVoiceMessage()
-                }
-        )
-        .simultaneousGesture(
+        .highPriorityGesture(
             DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    handleComposerPressChanged()
+                }
                 .onEnded { _ in
-                    finishVoiceMessage()
+                    handleComposerPressEnded()
                 }
         )
     }
@@ -334,6 +331,19 @@ private struct AgentView: View {
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
+    }
+
+    private var sendButton: some View {
+        Button(action: sendCurrentInput) {
+            Image(systemName: "arrow.up")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(canSend ? .black : .white.opacity(0.26))
+                .frame(width: 40, height: 40)
+                .background(canSend ? Color.mint : Color.white.opacity(0.06))
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!canSend)
     }
 
     private var canSend: Bool {
@@ -371,10 +381,10 @@ private struct AgentView: View {
     private func finishVoiceMessage() {
         guard isVoiceRecording else { return }
         isVoiceRecording = false
-        dictationManager.stop()
+        dictationManager.finish()
 
         Task {
-            try? await Task.sleep(for: .milliseconds(250))
+            try? await Task.sleep(for: .milliseconds(900))
             await MainActor.run {
                 let spokenText = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !spokenText.isEmpty else {
@@ -383,6 +393,33 @@ private struct AgentView: View {
                 }
                 sendCurrentInput()
             }
+        }
+    }
+
+    private func handleComposerPressChanged() {
+        guard !isPressingComposer else { return }
+        isPressingComposer = true
+
+        voiceStartTask?.cancel()
+        voiceStartTask = Task {
+            try? await Task.sleep(for: .milliseconds(180))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                guard isPressingComposer, inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+                beginVoiceMessage()
+            }
+        }
+    }
+
+    private func handleComposerPressEnded() {
+        isPressingComposer = false
+        voiceStartTask?.cancel()
+        voiceStartTask = nil
+
+        if isVoiceRecording {
+            finishVoiceMessage()
+        } else {
+            startTextInput()
         }
     }
 
@@ -445,15 +482,24 @@ private struct AgentView: View {
 
     private func syncAmbientMessages() {
         for line in sessionManager.liveTranscriptLines {
+            let isTranslationPending = settings.liveTranslationEnabled && line.translationText.isEmpty
+            let translationNote = isTranslationPending
+                ? AppText.t("Translating with AI...", "正在用大模型翻译...")
+                : nil
+
             if let index = messages.firstIndex(where: { $0.sourceID == line.id }) {
                 messages[index].primaryText = line.dialectText
                 messages[index].secondaryText = line.translationText.isEmpty ? nil : line.translationText
+                messages[index].noteText = translationNote
+                messages[index].isProcessing = isTranslationPending
             } else {
                 messages.append(
                     AgentMessage(
                         kind: .ambient,
                         primaryText: line.dialectText,
                         secondaryText: line.translationText.isEmpty ? nil : line.translationText,
+                        noteText: translationNote,
+                        isProcessing: isTranslationPending,
                         sourceID: line.id
                     )
                 )
@@ -495,6 +541,7 @@ private struct AgentMessage: Identifiable {
     var primaryText: String
     var secondaryText: String?
     var noteText: String?
+    var isProcessing: Bool = false
     var sourceID: UUID?
 
     var label: String? {

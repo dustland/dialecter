@@ -40,29 +40,25 @@ public enum MicSensitivity: String, CaseIterable, Identifiable {
     }
 }
 
-public enum ASRProvider: String, CaseIterable, Identifiable {
+public enum IntelligenceEngine: String, CaseIterable, Identifiable {
     case doubao
-    case aliyun
-    case appleFallback
+    case appleLocal
 
     public var id: String { rawValue }
 
     public var title: String {
         switch self {
-        case .doubao: "Doubao ASR"
-        case .aliyun: "Aliyun ASR"
-        case .appleFallback: AppText.t("Apple Fallback", "Apple 兜底")
+        case .doubao: AppText.t("Doubao", "豆包")
+        case .appleLocal: AppText.t("Apple Local", "Apple 本机")
         }
     }
 
     public var subtitle: String {
         switch self {
         case .doubao:
-            AppText.t("Primary far-field listening provider", "主要远场倾听识别服务")
-        case .aliyun:
-            AppText.t("Reserved provider for comparison", "预留用于效果对比")
-        case .appleFallback:
-            AppText.t("Local fallback only; lower far-field quality", "仅本地兜底，远场效果较弱")
+            AppText.t("ASR, translation, and speech powered by Doubao", "豆包负责识别、翻译和发音")
+        case .appleLocal:
+            AppText.t("Local fallback for ASR and speech", "本机识别和发音兜底")
         }
     }
 }
@@ -202,7 +198,8 @@ public final class AppSettings {
     private enum Key {
         static let listeningMode = "settings.listeningMode"
         static let micSensitivity = "settings.micSensitivity"
-        static let asrProvider = "settings.asrProvider"
+        static let intelligenceEngine = "settings.intelligenceEngine"
+        static let legacyASRProvider = "settings.asrProvider"
         static let sourceLanguage = "settings.sourceLanguage"
         static let translationTarget = "settings.translationTarget"
         static let chatTargetDialect = "settings.chatTargetDialect"
@@ -218,8 +215,8 @@ public final class AppSettings {
     public var micSensitivity: MicSensitivity {
         didSet { defaults.set(micSensitivity.rawValue, forKey: Key.micSensitivity) }
     }
-    public var asrProvider: ASRProvider {
-        didSet { defaults.set(asrProvider.rawValue, forKey: Key.asrProvider) }
+    public var intelligenceEngine: IntelligenceEngine {
+        didSet { defaults.set(intelligenceEngine.rawValue, forKey: Key.intelligenceEngine) }
     }
     public var sourceLanguage: SourceLanguage {
         didSet { defaults.set(sourceLanguage.rawValue, forKey: Key.sourceLanguage) }
@@ -249,7 +246,9 @@ public final class AppSettings {
         self.defaults = defaults
         self.listeningMode = ListeningMode(rawValue: defaults.string(forKey: Key.listeningMode) ?? "") ?? .meeting
         self.micSensitivity = MicSensitivity(rawValue: defaults.string(forKey: Key.micSensitivity) ?? "") ?? .high
-        self.asrProvider = ASRProvider(rawValue: defaults.string(forKey: Key.asrProvider) ?? "") ?? .doubao
+        let storedEngine = defaults.string(forKey: Key.intelligenceEngine)
+        let legacyASRProvider = defaults.string(forKey: Key.legacyASRProvider)
+        self.intelligenceEngine = Self.resolvedEngine(storedEngine: storedEngine, legacyASRProvider: legacyASRProvider)
         self.sourceLanguage = SourceLanguage(rawValue: defaults.string(forKey: Key.sourceLanguage) ?? "") ?? .cantonese
         self.translationTarget = TranslationTarget(rawValue: defaults.string(forKey: Key.translationTarget) ?? "") ?? .simplifiedChinese
         self.chatTargetDialect = ChatTargetDialect(rawValue: defaults.string(forKey: Key.chatTargetDialect) ?? "") ?? .cantonese
@@ -257,5 +256,18 @@ public final class AppSettings {
         self.liveTranscriptEnabled = defaults.object(forKey: Key.liveTranscriptEnabled) as? Bool ?? true
         self.liveTranslationEnabled = defaults.object(forKey: Key.liveTranslationEnabled) as? Bool ?? true
         self.keepScreenAwake = defaults.object(forKey: Key.keepScreenAwake) as? Bool ?? true
+    }
+
+    private static func resolvedEngine(storedEngine: String?, legacyASRProvider: String?) -> IntelligenceEngine {
+        if let storedEngine, let engine = IntelligenceEngine(rawValue: storedEngine) {
+            return engine
+        }
+
+        switch legacyASRProvider {
+        case "appleFallback":
+            return .appleLocal
+        default:
+            return .doubao
+        }
     }
 }

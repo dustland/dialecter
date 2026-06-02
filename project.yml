@@ -1,19 +1,19 @@
-name: DialectListener
+name: Dialecter
 options:
   bundleIdPrefix: com.dustland
 targets:
-  DialectListener:
+  Dialecter:
     type: application
     platform: iOS
     deploymentTarget: "17.0"
     sources:
-      - path: DialectListener
+      - path: Dialecter
       - path: Shared
     settings:
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: NO
-        INFOPLIST_FILE: DialectListener/Info.plist
+        INFOPLIST_FILE: Dialecter/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.dustland.DialectListener
         DEVELOPMENT_TEAM: "" # User can input their Apple Developer Team ID here
         TARGETED_DEVICE_FAMILY: 1

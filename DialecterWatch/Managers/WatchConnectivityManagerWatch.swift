@@ -16,7 +16,7 @@ public enum WatchRecordingState: String, Codable {
 @MainActor
 public final class WatchConnectivityManagerWatch: NSObject {
     
-    private let logger = Logger(subsystem: "com.dustland.DialectListener.watch", category: "WatchConnectivityManagerWatch")
+    private let logger = Logger(subsystem: "com.dustland.Dialecter.watch", category: "WatchConnectivityManagerWatch")
     private var session: WCSession?
     
     // Observable states to drive Watch UI

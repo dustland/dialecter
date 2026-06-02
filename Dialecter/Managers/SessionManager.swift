@@ -9,7 +9,7 @@ import OSLog
 @MainActor
 public final class SessionManager {
     
-    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "SessionManager")
+    private let logger = Logger(subsystem: "com.dustland.Dialecter", category: "SessionManager")
     
     // Core Dependencies
     public let connectivityManager: WatchConnectivityManager
@@ -33,6 +33,7 @@ public final class SessionManager {
     private var watchSyncTimer: Timer?
     private var liveSentenceTimer: Timer?
     private var liveTranslationTask: Task<Void, Never>?
+    private var liveStreamingASRService: StreamingASRServiceProtocol?
     private var lastTranslatedSnapshot: String = ""
     private var liveASRSegments: [SpeechSegment] = []
     
@@ -91,16 +92,23 @@ public final class SessionManager {
             liveASRSegments = []
 
             translationService = SmartTranslationService(model: appSettings.aiModel.modelIdentifier)
-            asrService.setLocaleIdentifier(appSettings.sourceLanguage.localeIdentifier)
-            try asrService.startLiveTranscription { [weak self] result in
-                Task { @MainActor in
-                    self?.handleLiveTranscription(result)
+            let streamingASRService = makeStreamingASRService()
+            liveStreamingASRService = streamingASRService
+            try streamingASRService.start(
+                onEvent: { [weak self] event in
+                    Task { @MainActor in
+                        self?.handleStreamingASREvent(event)
+                    }
+                },
+                onError: { [weak self] error in
+                    Task { @MainActor in
+                        self?.liveTranslationStatus = AppText.t("Speech recognition paused", "语音识别已暂停") + ": \(error.localizedDescription)"
+                    }
                 }
-            }
+            )
 
-            let liveASRService = asrService
             recorderManager.onAudioBuffer = { buffer in
-                liveASRService.appendAudioBuffer(buffer)
+                streamingASRService.appendAudioBuffer(buffer)
             }
 
             // 1. Start audio recording and stream buffers into live ASR
@@ -152,7 +160,8 @@ public final class SessionManager {
             // 1. Stop audio recorder
             let (_, duration) = try recorderManager.stopRecording()
             recorderManager.onAudioBuffer = nil
-            asrService.stopLiveTranscription()
+            liveStreamingASRService?.stop()
+            liveStreamingASRService = nil
             liveTranslationTask?.cancel()
             UIApplication.shared.isIdleTimerDisabled = false
             
@@ -303,10 +312,24 @@ public final class SessionManager {
         }
     }
 
+    private func handleStreamingASREvent(_ event: StreamingASREvent) {
+        let segment = SpeechSegment(
+            start: event.start,
+            end: event.end,
+            text: event.text
+        )
+        liveASRSegments = mergedSpeechSegments(existing: liveASRSegments, incoming: [segment])
+        refreshPublishedLiveSentences(includePending: event.isFinal)
+    }
+
     private func refreshPublishedLiveSentences() {
+        refreshPublishedLiveSentences(includePending: false)
+    }
+
+    private func refreshPublishedLiveSentences(includePending: Bool) {
         let newLines = sentenceLines(
             from: liveASRSegments,
-            includePending: false,
+            includePending: includePending,
             currentTime: recorderManager.currentDuration
         )
         let mergedLines = mergeExistingTranslations(oldLines: liveTranscriptLines, newLines: newLines)
@@ -314,6 +337,16 @@ public final class SessionManager {
 
         liveTranscriptLines = mergedLines
         scheduleLiveTranslation()
+    }
+
+    private func makeStreamingASRService() -> StreamingASRServiceProtocol {
+        switch appSettings.intelligenceEngine {
+        case .doubao:
+            return DoubaoSeedASRService()
+        case .appleLocal:
+            asrService.setLocaleIdentifier(appSettings.sourceLanguage.localeIdentifier)
+            return AppleFallbackStreamingASRService(appleService: asrService)
+        }
     }
 
     private func mergedSpeechSegments(existing: [SpeechSegment], incoming: [SpeechSegment]) -> [SpeechSegment] {
@@ -512,7 +545,7 @@ public final class SessionManager {
     /// Triggers speech-to-text and translation pipeline in a background task
     private func triggerAsyncProcessing(for session: Session) {
         Task(priority: .background) {
-            let logger = Logger(subsystem: "com.dustland.DialectListener", category: "BackgroundASRTask")
+            let logger = Logger(subsystem: "com.dustland.Dialecter", category: "BackgroundASRTask")
             
             // Get full audio path on device
             let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]

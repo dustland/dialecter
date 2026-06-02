@@ -37,7 +37,7 @@ public protocol ASRServiceProtocol {
 /// Defaults to the Hong Kong Chinese locale and supports fully offline, on-device transcription where available.
 public final class AppleASRService: ASRServiceProtocol {
     
-    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "AppleASRService")
+    private let logger = Logger(subsystem: "com.dustland.Dialecter", category: "AppleASRService")
     private var localeIdentifier = "zh-HK"
     private var liveRecognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var liveRecognitionTask: SFSpeechRecognitionTask?

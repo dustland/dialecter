@@ -28,7 +28,7 @@ public enum AudioRecordingError: Error, LocalizedError {
 @Observable
 public final class AudioRecorderManager {
 
-    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "AudioRecorderManager")
+    private let logger = Logger(subsystem: "com.dustland.Dialecter", category: "AudioRecorderManager")
 
     public var isRecording: Bool = false
     public var currentDuration: TimeInterval = 0.0

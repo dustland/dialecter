@@ -9,7 +9,7 @@ public struct DialectChatResult: Codable, Equatable {
 }
 
 public final class DialectChatService {
-    private let logger = Logger(subsystem: "com.dustland.DialectListener", category: "DialectChatService")
+    private let logger = Logger(subsystem: "com.dustland.Dialecter", category: "DialectChatService")
     private let apiKey: String?
     private let model: String
 

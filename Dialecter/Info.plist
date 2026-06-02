@@ -36,6 +36,18 @@
 	<string>$(DOUBAO_ASR_API_KEY)</string>
 	<key>DoubaoASRResourceID</key>
 	<string>$(DOUBAO_ASR_RESOURCE_ID)</string>
+	<key>DoubaoArkAPIKey</key>
+	<string>$(DOUBAO_ARK_API_KEY)</string>
+	<key>DoubaoArkResourceID</key>
+	<string>$(DOUBAO_ARK_RESOURCE_ID)</string>
+	<key>DoubaoTTSAppID</key>
+	<string>$(DOUBAO_TTS_APP_ID)</string>
+	<key>DoubaoTTSAccessToken</key>
+	<string>$(DOUBAO_TTS_ACCESS_TOKEN)</string>
+	<key>DoubaoTTSSecretKey</key>
+	<string>$(DOUBAO_TTS_SECRET_KEY)</string>
+	<key>DoubaoTTSResourceID</key>
+	<string>$(DOUBAO_TTS_RESOURCE_ID)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
