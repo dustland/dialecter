@@ -341,6 +341,14 @@ public final class DoubaoSeedASRService: NSObject, StreamingASRServiceProtocol {
 
         let flags = data[1] & 0x0F
         let isLastPackage = flags == 0x2 || flags == 0x3
+
+        if flags == 0x1 || flags == 0x3 {
+            guard data.count >= offset + 4 else {
+                throw NSError(domain: "DoubaoSeedASRService", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid ASR response sequence."])
+            }
+            offset += 4
+        }
+
         let size = Int(data.readUInt32(at: offset))
         offset += 4
         guard size > 0, offset + size <= data.count else {
