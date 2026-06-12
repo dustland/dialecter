@@ -1,4 +1,5 @@
 import Foundation
+import AVFoundation
 import SwiftData
 import SwiftUI
 import UIKit
@@ -36,6 +37,7 @@ public final class SessionManager {
     private var liveStreamingASRService: StreamingASRServiceProtocol?
     private var lastTranslatedSnapshot: String = ""
     private var liveASRSegments: [SpeechSegment] = []
+    private var streamedAudioBufferCount = 0
     
     public init(
         connectivityManager: WatchConnectivityManager? = nil,
@@ -65,7 +67,9 @@ public final class SessionManager {
     public func checkPermissions() {
         Task {
             let micGranted = await recorderManager.requestPermissions()
-            let speechGranted = await asrService.requestAuthorization()
+            let speechGranted = appSettings.intelligenceEngine == .appleLocal
+                ? await asrService.requestAuthorization()
+                : true
             await MainActor.run {
                 self.isPermissionsGranted = micGranted && speechGranted
                 self.logger.info("Microphone and Speech permissions checked. Combined Status: \(self.isPermissionsGranted)")
@@ -79,6 +83,7 @@ public final class SessionManager {
     public func startSession(sessionId: UUID = UUID()) {
         guard isPermissionsGranted else {
             logger.error("Cannot start session: Permissions are missing.")
+            liveTranslationStatus = AppText.t("Microphone permission is missing.", "缺少麦克风权限。")
             connectivityManager.sendStatusUpdate(state: .error, duration: 0, sessionId: nil)
             return
         }
@@ -90,6 +95,7 @@ public final class SessionManager {
             liveTranslationStatus = AppText.t("Listening...", "倾听中...")
             lastTranslatedSnapshot = ""
             liveASRSegments = []
+            streamedAudioBufferCount = 0
 
             translationService = SmartTranslationService(model: appSettings.aiModel.modelIdentifier)
             let streamingASRService = makeStreamingASRService()
@@ -107,8 +113,12 @@ public final class SessionManager {
                 }
             )
 
-            recorderManager.onAudioBuffer = { buffer in
+            recorderManager.onAudioBuffer = { [weak self] buffer in
                 streamingASRService.appendAudioBuffer(buffer)
+                let level = Self.estimatedAudioLevel(buffer)
+                Task { @MainActor in
+                    self?.handleAudioBufferObserved(level: level)
+                }
             }
 
             // 1. Start audio recording and stream buffers into live ASR
@@ -163,6 +173,7 @@ public final class SessionManager {
             liveStreamingASRService?.stop()
             liveStreamingASRService = nil
             liveTranslationTask?.cancel()
+            streamedAudioBufferCount = 0
             UIApplication.shared.isIdleTimerDisabled = false
             
             // 2. Stop watch sync loop
@@ -318,8 +329,24 @@ public final class SessionManager {
             end: event.end,
             text: event.text
         )
+        liveTranslationStatus = event.isFinal
+            ? AppText.t("Sentence recognized", "已识别一句")
+            : AppText.t("Recognizing...", "正在识别...")
         liveASRSegments = mergedSpeechSegments(existing: liveASRSegments, incoming: [segment])
         refreshPublishedLiveSentences(includePending: event.isFinal)
+    }
+
+    private func handleAudioBufferObserved(level: Float) {
+        guard isRecordingLocally else { return }
+
+        streamedAudioBufferCount += 1
+        guard liveASRSegments.isEmpty, streamedAudioBufferCount % 12 == 0 else { return }
+
+        if level < 0.006 {
+            liveTranslationStatus = AppText.t("Listening, but the sound is very weak", "正在收音，但声音很弱")
+        } else {
+            liveTranslationStatus = AppText.t("Receiving audio, waiting for a sentence", "正在收音，等待成句")
+        }
     }
 
     private func refreshPublishedLiveSentences() {
@@ -451,7 +478,21 @@ public final class SessionManager {
     private func endsLikeSentence(_ text: String) -> Bool {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let last = trimmed.last else { return false }
-        return "。！？?!，,；;".contains(last)
+        return "。！？?!；;".contains(last)
+    }
+
+    nonisolated private static func estimatedAudioLevel(_ buffer: AVAudioPCMBuffer) -> Float {
+        guard let channelData = buffer.floatChannelData else { return 0 }
+        let frameLength = Int(buffer.frameLength)
+        guard frameLength > 0 else { return 0 }
+
+        var sum: Float = 0
+        for frame in 0..<frameLength {
+            let sample = channelData[0][frame]
+            sum += sample * sample
+        }
+
+        return sqrt(sum / Float(frameLength))
     }
 
     private func mergeExistingTranslations(oldLines: [TranscriptLine], newLines: [TranscriptLine]) -> [TranscriptLine] {

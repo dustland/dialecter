@@ -81,6 +81,9 @@ private struct AgentView: View {
             syncAmbientMessages()
         }
         .onChange(of: sessionManager.liveTranslationStatus) { _, _ in
+            if sessionManager.isRecordingLocally {
+                statusText = sessionManager.liveTranslationStatus
+            }
             syncAmbientMessages()
         }
         .onDisappear {
@@ -163,20 +166,22 @@ private struct AgentView: View {
                             .stroke(Color.white.opacity(0.07), lineWidth: 1)
                     )
 
-                Image(systemName: "sparkle")
+                Image(systemName: sessionManager.isRecordingLocally ? "ear" : "sparkle")
                     .font(.system(size: 28, weight: .semibold))
                     .foregroundColor(.mint)
             }
 
-            Text(AppText.t("Hold to speak, or start listening", "按住说，或打开倾听"))
+            Text(sessionManager.isRecordingLocally ? sessionManager.liveTranslationStatus : AppText.t("Hold to speak, or start listening", "按住说，或打开倾听"))
                 .font(.system(.headline, design: .rounded))
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
 
-            Text(AppText.t(
-                "Speak Mandarin for natural Cantonese. Ambient listening appears sentence by sentence.",
-                "说普通话，我帮你转成自然粤语。打开环境倾听，我按句子显示对照。"
-            ))
+            Text(sessionManager.isRecordingLocally
+                 ? AppText.t("Keep the phone close enough to the voices you want to capture.", "手机需要离目标声音足够近。")
+                 : AppText.t(
+                    "Speak Mandarin for natural Cantonese. Ambient listening appears sentence by sentence.",
+                    "说普通话，我帮你转成自然粤语。打开环境倾听，我按句子显示对照。"
+                 ))
             .font(.system(.callout, design: .rounded))
             .foregroundColor(.secondary)
             .multilineTextAlignment(.center)
@@ -476,7 +481,7 @@ private struct AgentView: View {
             statusText = nil
         } else {
             sessionManager.startSession()
-            statusText = AppText.t("Ambient listening is on.", "环境倾听已开启。")
+            statusText = sessionManager.liveTranslationStatus
         }
     }
 
